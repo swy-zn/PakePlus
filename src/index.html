@@ -8,14 +8,19 @@
 <style>
 /* ============ 主题变量 ============ */
 :root{
-  --bg:#eef1f7; --panel:rgba(255,255,255,.82); --panel-solid:#ffffff;
+  --bg:#eef1f7;
+  --panel-alpha:0.75; --panel-solid-alpha:1;
+  --panel:rgba(255,255,255,var(--panel-alpha));
+  --panel-solid:rgba(255,255,255,var(--panel-solid-alpha));
   --text:#1f2937; --muted:#6b7280; --border:#e3e8f0;
   --accent:#4f7cff; --accent-soft:rgba(79,124,255,.12);
   --danger:#ef4444; --danger-soft:rgba(239,68,68,.12); --ok:#10b981;
   --shadow:0 6px 24px rgba(17,24,39,.10); --radius:12px;
 }
 html[data-theme="dark"]{
-  --bg:#0d1220; --panel:rgba(22,29,45,.82); --panel-solid:#161d2d;
+  --bg:#0d1220;
+  --panel:rgba(22,29,45,var(--panel-alpha));
+  --panel-solid:rgba(22,29,45,var(--panel-solid-alpha));
   --text:#e6ebf5; --muted:#94a1b8; --border:#26304a;
   --accent:#5f8bff; --accent-soft:rgba(95,139,255,.16);
   --danger:#f26b6b; --danger-soft:rgba(242,107,107,.14);
@@ -43,33 +48,18 @@ body{
 
 /* ============ 权限恢复横幅 ============ */
 #permissionBanner {
-  display: none;
-  background: #fef3c7;
-  color: #92400e;
-  padding: 10px 16px;
-  font-size: 13px;
-  border-bottom: 1px solid #fcd34d;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 100;
-  position: relative;
+  display: none; background: #fef3c7; color: #92400e; padding: 10px 16px; font-size: 13px;
+  border-bottom: 1px solid #fcd34d; align-items: center; justify-content: space-between; z-index: 100; position: relative;
 }
-html[data-theme="dark"] #permissionBanner {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fcd34d;
-  border-bottom-color: rgba(245, 158, 11, 0.3);
-}
-#permissionBanner button {
-  background: #d97706; color: white; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
-}
+html[data-theme="dark"] #permissionBanner { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border-bottom-color: rgba(245, 158, 11, 0.3); }
+#permissionBanner button { background: #d97706; color: white; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 #permissionBanner button:hover { background: #b45309; }
 
 /* ============ 头部 ============ */
 .app-header{
   display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 16px;
   background:var(--panel);border-bottom:1px solid var(--border);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  flex-shrink:0;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);flex-shrink:0;
 }
 .brand{display:flex;align-items:center;gap:8px;white-space:nowrap;}
 .logo{font-size:20px;line-height:1;}
@@ -80,27 +70,59 @@ html[data-theme="dark"] #permissionBanner {
 .tabs-container{
   display:flex;justify-content:space-between;align-items:center;padding:8px 16px;
   background:var(--panel);border-bottom:1px solid var(--border);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  flex-shrink:0;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);flex-shrink:0;
 }
-.tabs-left{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:0; scrollbar-width: none;}
-.tabs-left::-webkit-scrollbar { display: none; }
+.tabs-left{display:flex;gap:8px;flex:1;min-width:0;align-items:center;}
 .tabs-right{display:flex;gap:8px;flex-shrink:0;margin-left:16px;align-items:center;}
 
 .tab{
-  padding:7px 14px;border-radius:9px;border:1px solid transparent;background:transparent;
+  padding:0 14px; height:34px; border-radius:9px; border:1px solid transparent; background:transparent;
   color:var(--muted);cursor:pointer;font-size:13px;white-space:nowrap;font-family:inherit;
-  display:flex;align-items:center;gap:6px;transition:.15s;flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.15s;flex-shrink:0;
 }
 .tab:hover{background:var(--accent-soft);color:var(--text);}
 .tab.active{background:var(--accent);color:#fff;}
 .tab-count{font-size:11px;padding:0 6px;border-radius:8px;background:rgba(125,125,125,.22);}
 .tab.active .tab-count{background:rgba(255,255,255,.28);}
 .tab-add{border:1px dashed var(--border);color:var(--muted);}
-.tab-repo { border: 1px solid var(--border); background: var(--panel-solid); font-weight: bold; }
+.tab-repo { border: 1px solid var(--border); background: var(--panel-solid); font-weight: 600; font-size: 14px; }
 .tab-repo.active { border-color: var(--accent); }
 
-/* ============ 主体 ============ */
+/* 表名切换组：表名按钮 + ▾ 分离列 */
+#tableSwitcher{
+  display:inline-flex;align-items:center;gap:6px;flex-shrink:0;height:34px;
+}
+#btnCurrentTable{
+  border:1px solid var(--border);background:var(--panel-solid);border-radius:9px;
+  padding:0 14px;font-size:14px;font-weight:600;height:100%;
+  color:var(--text);font-family:inherit;display:flex;align-items:center;white-space:nowrap;
+  max-width:240px;overflow:hidden;text-overflow:ellipsis;cursor:default;
+}
+#btnTableDropdown{
+  border:1px solid var(--border);background:var(--panel-solid);border-radius:9px;
+  padding:0 12px;font-size:12px;height:100%;cursor:pointer;color:var(--muted);font-family:inherit;
+  display:flex;align-items:center;justify-content:center;transition:.15s;
+}
+#btnTableDropdown:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+
+/* 表切换弹层 */
+.table-search-popover {
+  position: absolute; top: 50px; left: 16px; z-index: 1000;
+  width: 250px; background: var(--panel-solid); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow); display: none; flex-direction: column; overflow: hidden;
+}
+.table-search-popover.show { display: flex; }
+.tsp-search-wrap { padding: 8px; border-bottom: 1px solid var(--border); }
+.tsp-search-wrap input { width: 100%; padding: 6px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; transition: 0.2s; }
+.tsp-search-wrap input:focus { border-color: var(--accent); }
+.tsp-list { max-height: 300px; overflow-y: auto; }
+.tsp-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 13px; display: flex; justify-content: space-between; align-items:center; }
+.tsp-item:last-child { border-bottom: none; }
+.tsp-item:hover { background: var(--accent-soft); }
+.tsp-item.active { color: var(--accent); font-weight: bold; background: var(--accent-soft); }
+.tsp-empty { padding: 14px; text-align: center; color: var(--muted); font-size: 12px; }
+
+/* ============ 主体 (毛玻璃区域) ============ */
 .main{flex:1;display:flex;min-height:0;}
 .sidebar{
   width:210px;flex-shrink:0;padding:12px;overflow-y:auto;
@@ -204,7 +226,7 @@ textarea.input{resize:vertical;min-height:70px;line-height:1.5;}
 .table-wrap{
   flex:1;overflow:auto;border-radius:var(--radius);border:1px solid var(--border);
   background:var(--panel);min-height:0;
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   display:flex;flex-direction:column;
 }
 .data-table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -213,11 +235,31 @@ textarea.input{resize:vertical;min-height:70px;line-height:1.5;}
   background:var(--panel-solid);border-bottom:1px solid var(--border);
   font-weight:600;color:var(--muted);font-size:12px;white-space:nowrap;
 }
-.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
 .data-table tbody tr:hover{background:var(--accent-soft);}
 .data-table tbody tr.selected{background:rgba(79,124,255,.08);}
-.cell-name{font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.cell-note{color:var(--muted);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* 长文本：自动换行 + 可拖拽高度 */
+.cell-name, .cell-note, .cell-text {
+  min-width: 120px;
+  min-height: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+  resize: vertical;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.5;
+  display: block;
+  padding: 4px 6px;
+  border: 1px dashed transparent;
+  transition: border-color .2s;
+}
+.cell-name:hover, .cell-note:hover, .cell-text:hover {
+  border-color: var(--border);
+}
+.cell-name { font-weight: 600; }
+.cell-note { color: var(--muted); }
+
 .cell-date{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;}
 .op-col{width:1%;white-space:nowrap;text-align:right;}
 .cb-col{width:1%;padding-right:0;}
@@ -232,131 +274,39 @@ textarea.input{resize:vertical;min-height:70px;line-height:1.5;}
 .pagination{
   display:flex;align-items:center;justify-content:flex-end;gap:12px;
   padding:10px 16px;border-top:1px solid var(--border);
-  background:var(--panel-solid);font-size:13px;color:var(--muted);
+  background:var(--panel);font-size:13px;color:var(--muted);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius: 0 0 var(--radius) var(--radius);
 }
-.pagination input { width: 60px; padding: 4px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--text); outline: none; }
-.pagination button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--text); cursor: pointer; }
+.pagination input { width: 60px; padding: 4px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
+.pagination button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; }
 .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
 .pagination button:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
 
-.empty{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100%;min-height:240px;gap:12px;color:var(--muted);
-}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:240px;gap:12px;color:var(--muted);}
 .empty p{margin:0;font-size:13px;}
 
-/* ============ 附件仓库网格视图 ============ */
-.attachment-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 16px;
-  padding: 16px;
-}
-.attachment-card {
-  background: var(--panel-solid);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: .2s;
-  text-align: center;
-  position: relative;
-}
-.attachment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-  border-color: var(--accent);
-}
-.attachment-card.selected {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-.att-checkbox {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  accent-color: var(--accent);
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  z-index: 2;
-}
-.attachment-icon {
-  font-size: 36px;
-  line-height: 1;
-  margin-top: 8px;
-}
-.attachment-name {
-  font-size: 13px;
-  font-weight: 500;
-  word-break: break-all;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.attachment-meta {
-  font-size: 11px;
-  color: var(--muted);
-}
-.att-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  justify-content: center;
-  margin-top: 4px;
-}
-.att-tag {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(125,125,125,.1);
-  color: var(--muted);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.att-actions {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-  margin-top: 10px;
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
-  justify-content: center;
-}
-.att-actions button {
-  flex: 1;
-  padding: 4px 0;
-  font-size: 12px;
-}
+/* ============ 附件仓库网格 ============ */
+.attachment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; padding: 16px; }
+.attachment-card { background: var(--panel-solid); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: .2s; text-align: center; position: relative; }
+.attachment-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--accent); }
+.attachment-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+.att-checkbox { position: absolute; top: 10px; left: 10px; accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; z-index: 2; }
+.attachment-icon { font-size: 36px; line-height: 1; margin-top: 8px; }
+.attachment-name { font-size: 13px; font-weight: 500; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.attachment-meta { font-size: 11px; color: var(--muted); }
+.att-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; }
+.att-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(125,125,125,.1); color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.att-actions { display: flex; gap: 8px; width: 100%; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; justify-content: center; }
+.att-actions button { flex: 1; padding: 4px 0; font-size: 12px; }
 
 /* ============ 弹窗 ============ */
-.modal-mask{
-  position:fixed;inset:0;z-index:1000;background:rgba(10,15,25,.45);
-  display:flex;align-items:center;justify-content:center;padding:20px;
-  animation:fadeIn .15s ease;
-}
-.modal{
-  width:100%;background:var(--panel-solid);border-radius:16px;box-shadow:var(--shadow);
-  max-height:88vh;display:flex;flex-direction:column;overflow:hidden;
-  border:1px solid var(--border);animation:popIn .18s ease;
-}
-.modal-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:15px 18px;border-bottom:1px solid var(--border);flex-shrink:0;
-}
+.modal-mask{position:fixed;inset:0;z-index:1000;background:rgba(10,15,25,.45);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease;}
+.modal{width:100%;background:var(--panel-solid);border-radius:16px;box-shadow:var(--shadow);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);animation:popIn .18s ease;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .modal-head h3{margin:0;font-size:15px;font-weight:600;}
 .modal-body{padding:18px;overflow-y:auto;flex:1;}
-.modal-foot{
-  padding:12px 18px;display:flex;justify-content:flex-end;gap:8px;
-  border-top:1px solid var(--border);flex-shrink:0;
-}
+.modal-foot{padding:12px 18px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);flex-shrink:0;}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes popIn{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:none}}
 
@@ -368,10 +318,7 @@ textarea.input{resize:vertical;min-height:70px;line-height:1.5;}
 .dialog-msg b{color:var(--accent);}
 
 .field-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.check-item{
-  display:flex;align-items:center;gap:8px;padding:8px 10px;
-  border:1px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;transition:.12s;
-}
+.check-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;transition:.12s;}
 .check-item:hover{border-color:var(--accent);}
 .check-item.disabled{opacity:.6;cursor:not-allowed;}
 .check-item input{accent-color:var(--accent);cursor:pointer;}
@@ -387,29 +334,16 @@ textarea.input{resize:vertical;min-height:70px;line-height:1.5;}
 
 /* ============ 字段编辑器 ============ */
 .field-editor{display:flex;flex-direction:column;gap:8px;}
-.field-row{
-  display:flex;gap:6px;align-items:center;padding:8px;
-  border:1px solid var(--border);border-radius:10px;
-  background:rgba(125,125,125,.035);flex-wrap:wrap;
-}
+.field-row{display:flex;gap:6px;align-items:center;padding:8px;border:1px solid var(--border);border-radius:10px;background:rgba(125,125,125,.035);flex-wrap:wrap;}
 .field-row .mini-btn{margin-left:0;}
-.field-name-tag{
-  font-size:11px;color:var(--muted);border:1px dashed var(--border);
-  padding:3px 8px;border-radius:7px;white-space:nowrap;
-}
+.field-name-tag{font-size:11px;color:var(--muted);border:1px dashed var(--border);padding:3px 8px;border-radius:7px;white-space:nowrap;}
 
 .seg{display:flex;gap:6px;flex-wrap:wrap;}
-.seg-btn{
-  padding:7px 14px;border-radius:9px;border:1px solid var(--border);
-  background:var(--panel-solid);color:var(--muted);cursor:pointer;font-size:13px;font-family:inherit;transition:.15s;
-}
+.seg-btn{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--panel-solid);color:var(--muted);cursor:pointer;font-size:13px;font-family:inherit;transition:.15s;}
 .seg-btn:hover{border-color:var(--accent);}
 .seg-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 
-.cat-row{
-  display:flex;align-items:center;gap:10px;padding:9px 12px;
-  border:1px solid var(--border);border-radius:10px;margin-bottom:8px;
-}
+.cat-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
 .cat-row-name{flex:1;font-weight:500;}
 .cat-row-usage{font-size:12px;color:var(--muted);}
 .cat-add-row{display:flex;gap:8px;margin-top:12px;}
@@ -419,32 +353,18 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer;}
 
 /* ============ 图片/文件字段 ============ */
 .img-field, .file-field{display:flex;flex-direction:column;gap:8px;}
-.img-preview{
-  width:100%;min-height:64px;border:1px dashed var(--border);border-radius:10px;
-  display:flex;align-items:center;justify-content:center;padding:8px;
-  background:rgba(125,125,125,.04);
-}
+.img-preview{width:100%;min-height:64px;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;padding:8px;background:rgba(125,125,125,.04);}
 .img-preview img{max-width:100%;max-height:200px;border-radius:8px;display:block;}
 .img-empty{font-size:12px;color:var(--muted);}
 .img-actions{display:flex;gap:8px;}
-.thumb{
-  width:44px;height:44px;object-fit:cover;border-radius:8px;
-  border:1px solid var(--border);cursor:zoom-in;display:block;
-}
+.thumb{width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:zoom-in;display:block;}
 .cell-img{padding:6px 12px;}
 .file-link { color: var(--accent); text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
 .file-link:hover { text-decoration: underline; }
 
 /* ============ Toast ============ */
-#toastRoot{
-  position:fixed;right:18px;bottom:18px;z-index:2000;
-  display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none;
-}
-.toast{
-  padding:10px 16px;border-radius:10px;background:var(--panel-solid);
-  border:1px solid var(--border);box-shadow:var(--shadow);font-size:13px;
-  animation:slideIn .2s ease;max-width:320px;transition:.25s;
-}
+#toastRoot{position:fixed;right:18px;bottom:18px;z-index:2000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none;}
+.toast{padding:10px 16px;border-radius:10px;background:var(--panel-solid);border:1px solid var(--border);box-shadow:var(--shadow);font-size:13px;animation:slideIn .2s ease;max-width:320px;transition:.25s;}
 .toast.error{border-color:var(--danger);color:var(--danger);}
 .toast.out{opacity:0;transform:translateY(8px);}
 @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
@@ -469,17 +389,37 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer;}
     </div>
   </header>
 
-  <!-- 标签栏与表级操作 -->
   <nav class="tabs-container">
-    <div class="tabs-left" id="tabs"></div>
+    <div class="tabs-left">
+      <button class="tab tab-repo" id="btnViewRepo" style="margin-right: 4px;">📁 附件仓库</button>
+      
+      <div id="tableSwitcher" title="当前表">
+        <button id="btnCurrentTable"><span id="currentTableName">加载中...</span></button>
+        <button id="btnTableDropdown" title="展开表列表">▾</button>
+      </div>
+
+      <div style="display:flex; gap:6px; margin-left: 8px;">
+        <button class="icon-btn" id="undoBtn" title="撤回 (Ctrl+Z)" disabled>↩️</button>
+        <button class="icon-btn" id="redoBtn" title="反撤回 (Ctrl+Y)" disabled>↪️</button>
+      </div>
+      
+      <button class="tab tab-add" id="btnAddTable" style="margin-left: 8px;">＋ 新建表</button>
+    </div>
+
     <div class="tabs-right" id="tableActions">
-      <select id="fastSwitchTable" class="input" style="display:none; width:120px; padding:4px 8px; font-size:12px;"></select>
       <button class="btn" id="importExcelBtn">导入</button>
       <button class="btn" id="exportExcelBtn">导出</button>
       <button class="btn" id="tplExcelBtn">模板</button>
       <button class="btn" id="tblSettingsBtn">表设置</button>
     </div>
   </nav>
+
+  <div id="tableSearchPopover" class="table-search-popover">
+    <div class="tsp-search-wrap">
+      <input type="text" id="tspSearchInput" placeholder="搜索表名...">
+    </div>
+    <div id="tspList" class="tsp-list"></div>
+  </div>
 
   <div class="main">
     <aside class="sidebar" id="sidebar"></aside>
@@ -491,7 +431,6 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer;}
   </div>
 </div>
 
-<!-- 筛选浮层 -->
 <div id="filterPopover" class="filter-popover">
   <div class="fp-header">
     <input type="text" id="fpSearch" class="fp-search" placeholder="搜索过滤条件...">
@@ -513,10 +452,11 @@ input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer;}
 <input type="file" id="importExcelInput" accept=".xlsx, .xls" multiple hidden>
 <input type="file" id="bgImageInput" accept="image/*" hidden>
 <input type="file" id="attImportInput" multiple hidden>
+<input type="file" id="tblBgImageInput" accept="image/*" hidden>
 
 <script>
 /* ===================================================================
-   大肥鱼工作台 —— 终极版 (带窗口关闭设置与主动权限请求)
+   大肥鱼工作台 —— 终极版 (IndexedDB超大容量持久化)
    =================================================================== */
 
 /* ---------------- 字段类型 ---------------- */
@@ -545,11 +485,7 @@ const PRESET_FIELDS = [
   { label:'计划日期', type:'date' }, { label:'截止时间', type:'datetime-local' },
   { label:'图片', type:'image' }, { label:'文件/附件', type:'file' }
 ];
-const FLOW_MAP = { 
-  todo: [{ to:'done', label:'→ 已完成' }], 
-  done: [{ to:'todo', label:'← 待办' }, { to:'archive', label:'→ 存档' }], 
-  archive: [{ to:'done', label:'← 已完成' }] 
-};
+
 const STORAGE_KEY = 'dfy_admin_tool_v1';
 const UI_STATE_KEY = 'dfy_ui_state_v1';
 
@@ -580,6 +516,8 @@ let isPermLost = false;
 let savedBackupDirName = '';
 let savedAttachmentDirName = '';
 
+let currentTspOutsideClick = null;
+
 /* ---------------- 小工具 ---------------- */
 const $ = sel => document.querySelector(sel);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -605,7 +543,7 @@ function saveUiState() {
   localStorage.setItem(UI_STATE_KEY, JSON.stringify(uiState));
 }
 
-/* ---------------- 撤回栈逻辑 ---------------- */
+/* ---------------- 撤回栈 ---------------- */
 function pushUndo() {
   undoStack.push(JSON.stringify(S));
   if (undoStack.length > MAX_UNDO) undoStack.shift();
@@ -637,7 +575,38 @@ function updateUndoRedoBtns() {
   if (rBtn) rBtn.disabled = redoStack.length === 0;
 }
 
-/* ---------------- IndexedDB 存储目录句柄 ---------------- */
+/* ---------------- 数据库存储引擎 (IndexedDB) ---------------- */
+function openDataDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('DFY_DataDB', 1);
+    req.onupgradeneeded = e => { 
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('appState')) db.createObjectStore('appState');
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function saveToDB(data) {
+  try {
+    const db = await openDataDB();
+    const tx = db.transaction('appState', 'readwrite');
+    tx.objectStore('appState').put(data, 'current');
+    return new Promise(res => tx.oncomplete = res);
+  } catch(e) { console.error('保存到数据库失败', e); }
+}
+
+async function loadFromDB() {
+  try {
+    const db = await openDataDB();
+    const tx = db.transaction('appState', 'readonly');
+    const req = tx.objectStore('appState').get('current');
+    return new Promise(res => req.onsuccess = () => res(req.result));
+  } catch(e) { return null; }
+}
+
+/* ---------------- 目录句柄 (IndexedDB) ---------------- */
 function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open('DFY_BackupDB', 2);
@@ -669,9 +638,10 @@ async function getDirHandle(type) {
 
 /* ---------------- 持久化 ---------------- */
 function save(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); return true; }
-  catch (e) { toast('保存失败：本地存储空间不足', 'error'); return false; }
+  saveToDB(S);
+  return true;
 }
+
 function defaultFields(){
   return [
     { id:'f_name', label:'名称', type:'text', required:true },
@@ -687,18 +657,21 @@ function defaultCategories(){
 }
 function defaultState(){
   return {
-    version: 19,
+    version: 33,
     tables: [
-      { id:'sys_todo', name:'待办', system:true, role:'todo', fields: defaultFields(), categories: defaultCategories(), records:[] },
-      { id:'sys_done', name:'已完成', system:true, role:'done', fields: defaultFields(), categories: defaultCategories(), records:[] },
-      { id:'sys_archive', name:'存档', system:true, role:'archive', fields: defaultFields(), categories: defaultCategories(), records:[] }
+      { id:'sys_todo', name:'待办', system:true, fields: defaultFields(), categories: defaultCategories(), records:[], customBg: '' },
+      { id:'sys_done', name:'已完成', system:true, fields: defaultFields(), categories: defaultCategories(), records:[], customBg: '' },
+      { id:'sys_archive', name:'存档', system:true, fields: defaultFields(), categories: defaultCategories(), records:[], customBg: '' }
     ],
     attCategories: [{ id: uid(), name: '流程文档' }, { id: uid(), name: '操作手册' }],
     attTags: {}, 
     settings: { 
       theme:'light', bgType:'none', bgUrl:'', bgImage:'', bgOpacity:0.22, bgBlur:0,
       autoBackupMin: 0, accentColor: '#4f7cff', fontFamily: '',
-      closeBehavior: 'exit' // 'exit' | 'tray'
+      panelAlpha: 0.75, panelSolidAlpha: 1,
+      relationGroups: [
+        { id: 'rel_default', name: '默认流转', tableIds: ['sys_todo', 'sys_done', 'sys_archive'] }
+      ]
     }
   };
 }
@@ -733,13 +706,16 @@ function normalizeTable(t, globalCats){
 function normalizeState(s){
   const d = defaultState();
   if (!s || typeof s !== 'object') s = d;
-  s.version = 19;
+  s.version = 33;
   if (!Array.isArray(s.tables) || !s.tables.length) s.tables = d.tables;
   
   const globalCats = s.categories || d.categories || defaultCategories();
   delete s.categories; 
 
   s.settings = Object.assign({}, d.settings, s.settings || {});
+  if (typeof s.settings.panelAlpha !== 'number') s.settings.panelAlpha = 0.75;
+  if (typeof s.settings.panelSolidAlpha !== 'number') s.settings.panelSolidAlpha = 1;
+  if (!Array.isArray(s.settings.relationGroups)) s.settings.relationGroups = d.settings.relationGroups;
   if (!Array.isArray(s.attCategories)) s.attCategories = d.attCategories || [];
   if (!s.attTags) s.attTags = {};
   
@@ -749,9 +725,28 @@ function normalizeState(s){
   s.tables.forEach(t => { if (seen.has(t.id)) t.id = 'tbl_' + uid(); seen.add(t.id); });
   return s;
 }
-function loadState(){
-  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return normalizeState(JSON.parse(raw)); }
+
+async function loadState(){
+  try {
+    // 1. 优先尝试从 IndexedDB 读取（容量极大，不会爆5MB）
+    const dbData = await loadFromDB();
+    if (dbData) {
+      return normalizeState(dbData);
+    }
+
+    // 2. 如果数据库没数据，尝试从老版本的 localStorage 读取
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const normalized = normalizeState(parsed);
+      // 迁移到 IndexedDB 后，清空 localStorage 释放空间
+      await saveToDB(normalized);
+      localStorage.removeItem(STORAGE_KEY);
+      return normalized;
+    }
+  }
   catch (e) { console.warn('读取本地数据失败', e); }
+  
   return defaultState();
 }
 
@@ -806,9 +801,9 @@ function openSettings() {
       <div class="settings-nav">
         <div class="settings-nav-item active" data-tab="general">常规设置</div>
         <div class="settings-nav-item" data-tab="appearance">外观壁纸</div>
+        <div class="settings-nav-item" data-tab="flow">流转关系</div>
         <div class="settings-nav-item" data-tab="backup">数据备份</div>
         <div class="settings-nav-item" data-tab="attachment">附件仓库</div>
-        <div class="settings-nav-item" data-tab="system">系统行为</div>
       </div>
       <div class="settings-content" id="settingsContent"></div>
     </div>
@@ -854,25 +849,32 @@ function openSettings() {
         btn.onclick = () => {
           S.settings.theme = btn.dataset.theme;
           content.querySelectorAll('[data-theme]').forEach(b => b.classList.toggle('active', b === btn));
-          applyTheme(); save();
+          save(); applyTheme();
         };
       });
       content.querySelector('#accentColorInput').onchange = (e) => {
         S.settings.accentColor = e.target.value;
-        applyTheme(); save();
+        save(); applyTheme();
       };
       content.querySelector('#fontSelect').onchange = (e) => {
         S.settings.fontFamily = e.target.value;
-        applyTheme(); save();
+        save(); applyTheme();
       };
     } else if (tab === 'appearance') {
+      const pa = (typeof s.panelAlpha === 'number') ? s.panelAlpha : 0.75;
+      const psa = (typeof s.panelSolidAlpha === 'number') ? s.panelSolidAlpha : 1;
+      let perTableId = ui.tableId || (S.tables[0] && S.tables[0].id) || '';
+
       content.innerHTML = `
         <div class="form-row">
-          <label>背景壁纸</label>
+          <label>全局背景壁纸</label>
           <div class="seg">
             <button class="seg-btn ${s.bgType === 'none' ? 'active' : ''}" data-bg="none">无背景</button>
             <button class="seg-btn ${s.bgType === 'url' ? 'active' : ''}" data-bg="url">在线壁纸</button>
             <button class="seg-btn ${s.bgType === 'local' ? 'active' : ''}" data-bg="local">本地图片</button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6;">
+            选「无背景」时，只有下方设置过独立壁纸的表才有背景。
           </div>
         </div>
         <div class="form-row" id="urlRow" style="display:${s.bgType === 'url' ? 'flex' : 'none'}">
@@ -891,12 +893,42 @@ function openSettings() {
           </div>
         </div>
         <div class="form-row">
-          <label>背景透明度 <span id="opVal" style="color:var(--accent)">${Math.round(s.bgOpacity * 100)}%</span></label>
+          <label>背景透明度（壁纸本身） <span id="opVal" style="color:var(--accent)">${Math.round(s.bgOpacity * 100)}%</span></label>
           <input type="range" min="0" max="100" value="${Math.round(s.bgOpacity * 100)}" id="opRange">
         </div>
         <div class="form-row">
           <label>背景模糊 <span id="blurVal" style="color:var(--accent)">${s.bgBlur}px</span></label>
           <input type="range" min="0" max="20" value="${s.bgBlur}" id="blurRange">
+        </div>
+
+        <div style="border-top:1px dashed var(--border);margin:4px 0;"></div>
+
+        <div class="form-row">
+          <label>界面面板不透明度 <span id="paVal" style="color:var(--accent)">${Math.round(pa * 100)}%</span></label>
+          <input type="range" min="0" max="100" value="${Math.round(pa * 100)}" id="panelAlphaRange">
+          <div style="font-size:12px;color:var(--muted);">控制侧边栏、工具栏、表格容器、顶栏、标签栏。拖到 <b>0%</b> 时这些区域完全透明，壁纸全部透出。</div>
+        </div>
+        <div class="form-row">
+          <label>控件不透明度 <span id="psaVal" style="color:var(--accent)">${Math.round(psa * 100)}%</span></label>
+          <input type="range" min="0" max="100" value="${Math.round(psa * 100)}" id="panelSolidAlphaRange">
+          <div style="font-size:12px;color:var(--muted);">控制按钮、输入框、表格表头、弹窗、卡片、附件卡片等。拖到 <b>0%</b> 时完全透明。</div>
+        </div>
+
+        <div style="border-top:1px dashed var(--border);margin:4px 0;"></div>
+
+        <div class="form-row">
+          <label>按表独立壁纸</label>
+          <select class="input" id="perTableSelect">
+            ${S.tables.map(t => `<option value="${t.id}" ${t.id === perTableId ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}
+          </select>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">
+            <button class="btn" id="perTablePick">选择图片…</button>
+            <button class="btn btn-danger" id="perTableClear">清除此表壁纸</button>
+            <span id="perTableStatus" style="font-size:12px;color:var(--muted)"></span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6;">
+            提示：设置后只对该表生效，优先于全局壁纸。把上方全局壁纸设为「无背景」时，只有设置了独立壁纸的表才会显示背景。
+          </div>
         </div>
       `;
       const urlInput = content.querySelector('#bgUrlInput');
@@ -910,7 +942,7 @@ function openSettings() {
           content.querySelectorAll('[data-bg]').forEach(b => b.classList.toggle('active', b === btn));
           content.querySelector('#urlRow').style.display = S.settings.bgType === 'url' ? 'flex' : 'none';
           content.querySelector('#localRow').style.display = S.settings.bgType === 'local' ? 'flex' : 'none';
-          applyBg(); save();
+          save(); applyBg();
         };
       });
       content.querySelectorAll('[data-preset]').forEach(btn => {
@@ -921,7 +953,7 @@ function openSettings() {
           content.querySelectorAll('[data-bg]').forEach(b => b.classList.toggle('active', b.dataset.bg === 'url'));
           content.querySelector('#urlRow').style.display = 'flex';
           content.querySelector('#localRow').style.display = 'none';
-          applyBg(); save();
+          save(); applyBg();
         };
       });
       content.querySelector('#pickBg').onclick = () => document.getElementById('bgImageInput').click();
@@ -931,6 +963,142 @@ function openSettings() {
       const blurRange = content.querySelector('#blurRange');
       blurRange.addEventListener('input', () => { S.settings.bgBlur = Number(blurRange.value); content.querySelector('#blurVal').textContent = blurRange.value + 'px'; applyBg(); });
       blurRange.addEventListener('change', save);
+
+      const paRange = content.querySelector('#panelAlphaRange');
+      paRange.addEventListener('input', () => {
+        S.settings.panelAlpha = Number(paRange.value) / 100;
+        content.querySelector('#paVal').textContent = paRange.value + '%';
+        applyTheme();
+      });
+      paRange.addEventListener('change', save);
+
+      const psaRange = content.querySelector('#panelSolidAlphaRange');
+      psaRange.addEventListener('input', () => {
+        S.settings.panelSolidAlpha = Number(psaRange.value) / 100;
+        content.querySelector('#psaVal').textContent = psaRange.value + '%';
+        applyTheme();
+      });
+      psaRange.addEventListener('change', save);
+
+      const perSelect = content.querySelector('#perTableSelect');
+      const updatePerTableStatus = () => {
+        const t = S.tables.find(x => x.id === perTableId);
+        const st = content.querySelector('#perTableStatus');
+        const clr = content.querySelector('#perTableClear');
+        const pick = content.querySelector('#perTablePick');
+        if (!st || !clr || !pick) return;
+        if (!t) { st.textContent = ''; clr.style.display = 'none'; return; }
+        if (t.customBg) {
+          st.textContent = '✅ 已设置独立壁纸';
+          clr.style.display = 'inline-block';
+          pick.textContent = '重新选择图片…';
+        } else {
+          st.textContent = '未设置（使用全局壁纸）';
+          clr.style.display = 'none';
+          pick.textContent = '选择图片…';
+        }
+      };
+      perSelect.onchange = () => { perTableId = perSelect.value; updatePerTableStatus(); };
+      updatePerTableStatus();
+
+      content.querySelector('#perTablePick').onclick = () => {
+        const inp = document.getElementById('tblBgImageInput');
+        inp.value = '';
+        inp.onchange = async (ev) => {
+          const file = ev.target.files[0];
+          ev.target.value = '';
+          if (!file) return;
+          try {
+            const dataUrl = await compressImage(file, 600, 0.55);
+            const t = S.tables.find(x => x.id === perTableId);
+            if (!t) return;
+            t.customBg = dataUrl;
+            save(); applyBg();
+            updatePerTableStatus();
+            toast('已设置该表壁纸');
+          } catch (err) { toast('图片处理失败', 'error'); }
+        };
+        inp.click();
+      };
+
+      content.querySelector('#perTableClear').onclick = () => {
+        const t = S.tables.find(x => x.id === perTableId);
+        if (!t) return;
+        t.customBg = '';
+        save(); applyBg();
+        updatePerTableStatus();
+        toast('已清除该表壁纸');
+      };
+    } else if (tab === 'flow') {
+      const groups = S.settings.relationGroups || [];
+      content.innerHTML = `
+        <div class="form-row">
+          <label>流转关系组（同一组内的表可以互相流转记录）</label>
+          <div id="flowGroupsContainer" style="display:flex;flex-direction:column;gap:12px;">
+            ${groups.map((g, idx) => `
+              <div class="cat-row" style="flex-direction:column;align-items:stretch;gap:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <strong>${esc(g.name || '未命名组')}</strong>
+                  <button class="mini-btn danger" data-del-flow-group="${idx}">删除组</button>
+                </div>
+                <div style="font-size:12px;color:var(--muted);">
+                  包含的表：${g.tableIds.map(id => esc(S.tables.find(t=>t.id===id)?.name || '未知表')).join(' ↔ ')}
+                </div>
+              </div>
+            `).join('')}
+            ${groups.length === 0 ? '<div style="color:var(--muted);font-size:13px;">暂无关系组</div>' : ''}
+          </div>
+          <button class="btn btn-primary" id="addFlowGroupBtn" style="margin-top:12px;align-self:flex-start;">＋ 新建关系组</button>
+        </div>
+      `;
+
+      content.querySelector('#addFlowGroupBtn').onclick = () => {
+        const modalBody = document.createElement('div');
+        modalBody.className = 'form';
+        modalBody.innerHTML = `
+          <div class="form-row">
+            <label>关系组名称（可选）</label>
+            <input class="input" id="flowGroupName" placeholder="例如：任务流转">
+          </div>
+          <div class="form-row">
+            <label>勾选需要互通的表</label>
+            <div class="field-list">
+              ${S.tables.map(t => `<label class="check-item"><input type="checkbox" class="flow-table-cb" value="${t.id}"><span>${esc(t.name)}</span></label>`).join('')}
+            </div>
+          </div>
+        `;
+        openModal({
+          title: '新建流转关系组', body: modalBody, width: '450px',
+          footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-ok>确定</button>`,
+          onMount(mEl, mClose) {
+            mEl.querySelector('[data-cancel]').onclick = mClose;
+            mEl.querySelector('[data-ok]').onclick = () => {
+              const name = mEl.querySelector('#flowGroupName').value.trim() || '未命名组';
+              const checked = Array.from(mEl.querySelectorAll('.flow-table-cb:checked')).map(cb => cb.value);
+              if (checked.length < 2) { toast('请至少勾选两个表才能建立流转关系', 'error'); return; }
+              
+              if (!S.settings.relationGroups) S.settings.relationGroups = [];
+              S.settings.relationGroups.push({ id: 'grp_' + uid(), name, tableIds: checked });
+              save();
+              mClose();
+              renderTab('flow');
+              toast('关系组已创建');
+            };
+          }
+        });
+      };
+
+      content.querySelectorAll('[data-del-flow-group]').forEach(btn => {
+        btn.onclick = async () => {
+          const idx = Number(btn.dataset.delFlowGroup);
+          const ok = await confirmDialog({ title: '删除关系组', message: '删除后这些表将无法互相流转，确定吗？', danger: true, okText: '删除' });
+          if (!ok) return;
+          S.settings.relationGroups.splice(idx, 1);
+          save();
+          renderTab('flow');
+          toast('已删除');
+        };
+      });
     } else if (tab === 'backup') {
       const bNameDisplay = savedBackupDirName ? `上次选择: ${savedBackupDirName}` : '未选择';
       content.innerHTML = `
@@ -973,8 +1141,7 @@ function openSettings() {
       };
       content.querySelector('#backupIntervalSelect').onchange = (e) => {
         S.settings.autoBackupMin = Number(e.target.value);
-        save();
-        startAutoBackup();
+        save(); startAutoBackup();
       };
     } else if (tab === 'attachment') {
       const aNameDisplay = savedAttachmentDirName ? `上次选择: ${savedAttachmentDirName}` : '未选择';
@@ -1008,24 +1175,6 @@ function openSettings() {
           }
         } catch (err) { if (err.name !== 'AbortError') toast('设置失败', 'error'); }
       };
-    } else if (tab === 'system') {
-      content.innerHTML = `
-        <div class="form-row">
-          <label>点击右上角“叉”关闭时的行为</label>
-          <select class="input" id="closeBehaviorSelect">
-            <option value="exit" ${s.closeBehavior === 'exit' ? 'selected' : ''}>完全退出软件</option>
-            <option value="tray" ${s.closeBehavior === 'tray' ? 'selected' : ''}>隐藏到系统托盘 (需打包软件支持)</option>
-          </select>
-        </div>
-        <div style="margin-top:10px; font-size:12px; color:var(--muted); line-height:1.6;">
-          提示：纯网页无法实现托盘功能。如果你使用 PakePlus 打包 EXE，请勾选“关闭时隐藏到托盘”，并在此选择对应的行为。
-        </div>
-      `;
-      content.querySelector('#closeBehaviorSelect').onchange = (e) => {
-        S.settings.closeBehavior = e.target.value;
-        save();
-        toast('设置已保存');
-      };
     }
   };
 
@@ -1038,7 +1187,7 @@ function openSettings() {
   renderTab('general');
 
   openModal({
-    title: '⚙️ 系统设置', body, width: '680px',
+    title: '⚙️ 系统设置', body, width: '700px',
     footer: `<button class="btn btn-primary" data-cancel>完成</button>`,
     onMount(el, closeFn) { el.querySelector('[data-cancel]').onclick = closeFn; }
   });
@@ -1064,17 +1213,13 @@ async function performAutoBackup() {
       await writable.write(buffer);
       await writable.close();
     }
-  } catch (err) {
-    console.error('自动备份失败:', err);
-  }
+  } catch (err) { console.error('自动备份失败:', err); }
 }
 
 function startAutoBackup() {
   if (autoBackupInterval) clearInterval(autoBackupInterval);
   const min = S.settings.autoBackupMin;
-  if (min > 0 && backupDirHandle) {
-    autoBackupInterval = setInterval(performAutoBackup, min * 60 * 1000);
-  }
+  if (min > 0 && backupDirHandle) autoBackupInterval = setInterval(performAutoBackup, min * 60 * 1000);
 }
 
 async function checkPermissionStatus() {
@@ -1095,8 +1240,7 @@ async function checkPermissionStatus() {
       savedBackupDirName = bHandle.name;
       try {
         const perm = await bHandle.queryPermission({ mode: 'readwrite' });
-        if (perm === 'granted') startAutoBackup();
-        else lost = true;
+        if (perm === 'granted') startAutoBackup(); else lost = true;
       } catch (e) { lost = true; }
     }
     
@@ -1112,29 +1256,20 @@ async function checkPermissionStatus() {
   } catch (e) { console.warn('初始化目录句柄失败', e); }
   
   isPermLost = lost;
-  if (lost) {
-    banner.style.display = 'flex';
-  } else {
-    banner.style.display = 'none';
-  }
+  if (lost) banner.style.display = 'flex';
+  else banner.style.display = 'none';
 }
 
 async function restorePermissions() {
   let restoredCount = 0;
   try {
-    if (backupDirHandle) {
-      const perm = await backupDirHandle.queryPermission({ mode: 'readwrite' });
-      if (perm !== 'granted') {
-        const req = await backupDirHandle.requestPermission({ mode: 'readwrite' });
-        if (req === 'granted') restoredCount++;
-      }
+    if (backupDirHandle && (await backupDirHandle.queryPermission({ mode: 'readwrite' })) !== 'granted') {
+      const req = await backupDirHandle.requestPermission({ mode: 'readwrite' });
+      if (req === 'granted') restoredCount++;
     }
-    if (attachmentDirHandle) {
-      const perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
-      if (perm !== 'granted') {
-        const req = await attachmentDirHandle.requestPermission({ mode: 'readwrite' });
-        if (req === 'granted') restoredCount++;
-      }
+    if (attachmentDirHandle && (await attachmentDirHandle.queryPermission({ mode: 'readwrite' })) !== 'granted') {
+      const req = await attachmentDirHandle.requestPermission({ mode: 'readwrite' });
+      if (req === 'granted') restoredCount++;
     }
     
     if (restoredCount > 0) {
@@ -1163,9 +1298,7 @@ function categoryField(t){ return t.fields.find(f => f.type === 'category'); }
 function catUsage(t, cid){ 
   let n = 0; 
   const catField = categoryField(t);
-  if (catField) {
-    t.records.forEach(r => { if (r[catField.id] === cid) n++; }); 
-  }
+  if (catField) t.records.forEach(r => { if (r[catField.id] === cid) n++; }); 
   return n; 
 }
 
@@ -1181,35 +1314,43 @@ function applyTheme(){
     document.documentElement.style.setProperty('--accent', hex);
     document.documentElement.style.setProperty('--accent-soft', `rgba(${r},${g},${b},0.12)`);
   }
+
+  const pa = (typeof S.settings.panelAlpha === 'number') ? S.settings.panelAlpha : 0.75;
+  const psa = (typeof S.settings.panelSolidAlpha === 'number') ? S.settings.panelSolidAlpha : 1;
+  document.documentElement.style.setProperty('--panel-alpha', String(pa));
+  document.documentElement.style.setProperty('--panel-solid-alpha', String(psa));
 }
 
 function applyBg(){
-  const layer = document.getElementById('bgLayer'); const s = S.settings;
-  let url = s.bgType === 'url' ? (s.bgUrl || '').trim() : (s.bgType === 'local' ? s.bgImage : '');
+  const layer = document.getElementById('bgLayer'); 
+  const s = S.settings;
+  const t = currentTable();
+  
+  let url = '';
+  if (t && t.customBg) {
+    url = t.customBg;
+  } else {
+    if (s.bgType === 'url') url = (s.bgUrl || '').trim();
+    else if (s.bgType === 'local') url = s.bgImage || '';
+  }
+
   if (!url) { layer.style.display = 'none'; return; }
-  layer.style.display = 'block'; layer.style.backgroundImage = `url("${String(url).replace(/"/g, '%22')}")`;
-  layer.style.opacity = String(s.bgOpacity); layer.style.filter = s.bgBlur ? `blur(${s.bgBlur}px)` : 'none';
+  layer.style.display = 'block'; 
+  layer.style.backgroundImage = `url("${String(url).replace(/"/g, '%22')}")`;
+  layer.style.opacity = String(s.bgOpacity); 
+  layer.style.filter = s.bgBlur ? `blur(${s.bgBlur}px)` : 'none';
 }
 
-/* ---------------- 视图与标签渲染 ---------------- */
+/* ---------------- 视图与标签 ---------------- */
 function renderTabs(){ 
-  const tableTabs = S.tables.map(t => `<button class="tab ${t.id === ui.tableId && ui.currentView === 'table' ? 'active' : ''}" data-tab="${t.id}">${esc(t.name)}<span class="tab-count">${t.records.length}</span></button>`).join('');
-  const addBtn = `<button class="tab tab-add" data-addtable>＋ 新建表</button>`;
-  const repoBtn = `<button class="tab tab-repo ${ui.currentView === 'attachments' ? 'active' : ''}" data-tab="__repo">📁 附件仓库</button>`;
-  
-  document.getElementById('tabs').innerHTML = repoBtn + tableTabs + addBtn;
-
-  const fastSwitch = document.getElementById('fastSwitchTable');
-  if (S.tables.length > 5 && ui.currentView === 'table') {
-    fastSwitch.style.display = 'block';
-    fastSwitch.innerHTML = `<option value="">快速切换表 ▾</option>` + S.tables.map(t => `<option value="${t.id}" ${t.id === ui.tableId ? 'selected' : ''}>${esc(t.name)}</option>`).join('');
-  } else {
-    fastSwitch.style.display = 'none';
-  }
+  const t = currentTable();
+  document.getElementById('currentTableName').textContent = t ? t.name : '未命名表';
+  document.getElementById('btnViewRepo').classList.toggle('active', ui.currentView === 'attachments');
 }
 
 function renderView() {
   renderTabs();
+  applyBg();
   const tableActions = document.getElementById('tableActions');
   const sidebar = document.getElementById('sidebar');
   const toolbar = document.getElementById('toolbar');
@@ -1228,6 +1369,73 @@ function renderView() {
   }
 }
 
+/* ---------------- 表切换 ---------------- */
+function openTableSearch(anchorEl) {
+  const popover = document.getElementById('tableSearchPopover');
+  const listEl  = document.getElementById('tspList');
+  const searchEl = document.getElementById('tspSearchInput');
+
+  const appEl  = document.getElementById('app');
+  const appRect = appEl.getBoundingClientRect();
+  const rect    = anchorEl.getBoundingClientRect();
+
+  popover.style.top  = (rect.bottom - appRect.top + 8) + 'px';
+  let left = rect.left - appRect.left;
+  if (left + 250 > appRect.width) left = Math.max(8, appRect.width - 250 - 8);
+  popover.style.left = left + 'px';
+  popover.classList.add('show');
+
+  const closePopover = () => {
+    popover.classList.remove('show');
+    if (currentTspOutsideClick) {
+      document.removeEventListener('click', currentTspOutsideClick);
+      currentTspOutsideClick = null;
+    }
+  };
+
+  const outsideClick = (e) => {
+    if (!popover.contains(e.target) && !anchorEl.contains(e.target)) closePopover();
+  };
+
+  const renderList = (kw = '') => {
+    const q = String(kw).trim().toLowerCase();
+    const filtered = S.tables.filter(t => String(t.name).toLowerCase().includes(q));
+    
+    if (!filtered.length) {
+      listEl.innerHTML = `<div class="tsp-empty">没有找到匹配的表</div>`;
+      return;
+    }
+    listEl.innerHTML = filtered.map(t => `
+      <div class="tsp-item ${t.id === ui.tableId ? 'active' : ''}" data-id="${t.id}">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(t.name)}</span>
+        <span style="font-size:11px;opacity:.6;flex-shrink:0;margin-left:8px;">${t.records.length} 条</span>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.tsp-item').forEach(item => {
+      item.onclick = () => {
+        switchTable(item.dataset.id);
+        closePopover();
+      };
+    });
+  };
+
+  if (searchEl) {
+    searchEl.value = '';
+    searchEl.oninput = () => renderList(searchEl.value);
+    setTimeout(() => searchEl.focus(), 50);
+  }
+  
+  renderList();
+
+  if (currentTspOutsideClick) document.removeEventListener('click', currentTspOutsideClick);
+  currentTspOutsideClick = outsideClick;
+  setTimeout(() => {
+    document.removeEventListener('click', outsideClick);
+    document.addEventListener('click', outsideClick);
+  }, 10);
+}
+
 /* ---------------- 附件仓库视图 ---------------- */
 async function loadAttachments() {
   if (!attachmentDirHandle) {
@@ -1236,7 +1444,6 @@ async function loadAttachments() {
     return;
   }
   
-  // 主动尝试恢复权限 (由用户点击触发的)
   let perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
   if (perm !== 'granted') {
     perm = await attachmentDirHandle.requestPermission({ mode: 'readwrite' });
@@ -1259,12 +1466,7 @@ async function loadAttachments() {
     for await (const entry of attachmentDirHandle.values()) {
       if (entry.kind === 'file') {
         const file = await entry.getFile();
-        files.push({
-          name: file.name,
-          size: file.size,
-          type: file.type || entry.name.split('.').pop().toLowerCase(),
-          handle: entry
-        });
+        files.push({ name: file.name, size: file.size, type: file.type || entry.name.split('.').pop().toLowerCase(), handle: entry });
       }
     }
     ui.attFiles = files.sort((a, b) => a.name.localeCompare(b.name));
@@ -1304,18 +1506,10 @@ function renderAttachmentsSidebar() {
     
     <div class="side-title" style="margin-top:10px;">系统分类</div>
     <div class="cat-list">
-      <div class="cat-item ${ui.attCategory === 'image' ? 'active' : ''}" data-att-cat="image">
-        <span>🖼️ 图片</span>
-      </div>
-      <div class="cat-item ${ui.attCategory === 'video' ? 'active' : ''}" data-att-cat="video">
-        <span>🎬 视频</span>
-      </div>
-      <div class="cat-item ${ui.attCategory === 'doc' ? 'active' : ''}" data-att-cat="doc">
-        <span>📑 文档</span>
-      </div>
-      <div class="cat-item ${ui.attCategory === 'other' ? 'active' : ''}" data-att-cat="other">
-        <span>📦 其他</span>
-      </div>
+      <div class="cat-item ${ui.attCategory === 'image' ? 'active' : ''}" data-att-cat="image"><span>🖼️ 图片</span></div>
+      <div class="cat-item ${ui.attCategory === 'video' ? 'active' : ''}" data-att-cat="video"><span>🎬 视频</span></div>
+      <div class="cat-item ${ui.attCategory === 'doc' ? 'active' : ''}" data-att-cat="doc"><span>📑 文档</span></div>
+      <div class="cat-item ${ui.attCategory === 'other' ? 'active' : ''}" data-att-cat="other"><span>📦 其他</span></div>
     </div>
     <div style="flex:1"></div>
     <button class="btn btn-block" data-manage-att-cat>⚙️ 管理自定义分类</button>
@@ -1445,22 +1639,15 @@ function renderAttachmentsView() {
         previewAttachment(name);
       };
 
-      card.querySelector('[data-act="open"]').onclick = (e) => {
-        e.stopPropagation();
-        openAttachmentWithSystem(name);
-      };
-
-      card.querySelector('[data-act="delete"]').onclick = (e) => {
-        e.stopPropagation();
-        deleteAttachmentFile(name);
-      };
+      card.querySelector('[data-act="open"]').onclick = (e) => { e.stopPropagation(); openAttachmentWithSystem(name); };
+      card.querySelector('[data-act="delete"]').onclick = (e) => { e.stopPropagation(); deleteAttachmentFile(name); };
     });
   };
 
   updateAttGrid();
 }
 
-/* ---------------- 附件操作逻辑 ---------------- */
+/* ---------------- 附件操作 ---------------- */
 function getFileCategory(filename) {
   const ext = filename.split('.').pop().toLowerCase();
   if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'image';
@@ -1498,18 +1685,12 @@ async function previewAttachment(filename) {
       title: `预览: ${filename}`,
       width: '800px',
       body: bodyHTML,
-      footer: `
-        <button class="btn" data-cancel>关闭</button>
-        <button class="btn btn-primary" id="downloadFileBtn">下载 / 系统打开</button>
-      `,
+      footer: `<button class="btn" data-cancel>关闭</button><button class="btn btn-primary" id="downloadFileBtn">下载 / 系统打开</button>`,
       onMount(el, closeFn) {
         el.querySelector('[data-cancel]').onclick = () => { URL.revokeObjectURL(url); closeFn(); };
         el.querySelector('#downloadFileBtn').onclick = () => {
           const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
+          a.href = url; a.download = filename; document.body.appendChild(a); a.click();
           setTimeout(() => a.remove(), 100);
         };
       },
@@ -1532,7 +1713,6 @@ async function openAttachmentWithSystem(filename) {
     const url = URL.createObjectURL(file);
     
     window.open(url, '_blank');
-    
     setTimeout(() => { URL.revokeObjectURL(url); }, 10000);
   } catch (err) {
     console.error(err);
@@ -1552,11 +1732,7 @@ async function deleteAttachmentFile(filename) {
 
     await attachmentDirHandle.removeEntry(filename);
     
-    if (S.attTags[filename]) {
-      delete S.attTags[filename];
-      save();
-    }
-    
+    if (S.attTags[filename]) { delete S.attTags[filename]; save(); }
     ui.attSelectedFiles.delete(filename);
     toast('文件已彻底删除');
     loadAttachments();
@@ -1566,14 +1742,11 @@ async function deleteAttachmentFile(filename) {
   }
 }
 
-/* ---------------- 附件分类管理 ---------------- */
 function openAttTagDialog() {
   const files = Array.from(ui.attSelectedFiles);
   if (files.length === 0) return;
   
-  const body = document.createElement('div');
-  body.className = 'form';
-  
+  const body = document.createElement('div'); body.className = 'form';
   let html = `<div class="dialog-msg">正在给选中的 <b>${files.length}</b> 个文件设置分类。勾选代表加入，取消勾选代表移出。</div>`;
   
   S.attCategories.forEach(c => {
@@ -1581,39 +1754,25 @@ function openAttTagDialog() {
     const someHave = files.some(f => (S.attTags[f] || []).includes(c.id));
     const checked = allHave ? 'checked' : '';
     const indeterminate = (!allHave && someHave) ? 'data-indeterminate="true"' : '';
-    
-    html += `
-      <label class="check-item" style="margin-top:8px;">
-        <input type="checkbox" class="tag-cb" value="${c.id}" ${checked} ${indeterminate}>
-        <span>${esc(c.name)}</span>
-      </label>
-    `;
+    html += `<label class="check-item" style="margin-top:8px;"><input type="checkbox" class="tag-cb" value="${c.id}" ${checked} ${indeterminate}><span>${esc(c.name)}</span></label>`;
   });
   
-  if (S.attCategories.length === 0) {
-    html += `<div style="color:var(--muted);font-size:13px;margin-top:8px;">还没有自定义分类，请先在左侧边栏管理分类。</div>`;
-  }
-  
+  if (S.attCategories.length === 0) html += `<div style="color:var(--muted);font-size:13px;margin-top:8px;">还没有自定义分类，请先在左侧边栏管理分类。</div>`;
   body.innerHTML = html;
 
   openModal({
-    title: '设置分类标签',
-    body,
-    width: '400px',
+    title: '设置分类标签', body, width: '400px',
     footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-save>确定</button>`,
     onMount(el, closeFn) {
       el.querySelectorAll('input[data-indeterminate="true"]').forEach(cb => cb.indeterminate = true);
-      
       el.querySelector('[data-cancel]').onclick = closeFn;
       el.querySelector('[data-save]').onclick = () => {
         const selectedCats = [];
         el.querySelectorAll('.tag-cb:checked').forEach(cb => selectedCats.push(cb.value));
-        
         files.forEach(f => {
           if (!S.attTags[f]) S.attTags[f] = [];
           S.attTags[f] = selectedCats.slice(); 
         });
-        
         save();
         ui.attSelectedFiles.clear();
         closeFn();
@@ -1630,8 +1789,7 @@ function openManageAttCategories() {
   const addRow = document.createElement('div');
   
   addRow.innerHTML = `<div class="cat-add-row"><input class="input" id="newAttCatName" placeholder="输入新分类名称"><button class="btn btn-primary" id="addAttCatBtn">添加</button></div>`;
-  body.appendChild(listEl);
-  body.appendChild(addRow);
+  body.appendChild(listEl); body.appendChild(addRow);
 
   const renderList = () => {
     listEl.innerHTML = S.attCategories.length ? S.attCategories.map(c => `
@@ -1645,10 +1803,7 @@ function openManageAttCategories() {
   renderList();
 
   openModal({
-    title: '管理附件自定义分类',
-    body,
-    width: '480px',
-    footer: `<button class="btn" data-cancel>关闭</button>`,
+    title: '管理附件自定义分类', body, width: '480px', footer: `<button class="btn" data-cancel>关闭</button>`,
     onMount(el, closeFn) {
       el.querySelector('[data-cancel]').onclick = closeFn;
       
@@ -1657,7 +1812,6 @@ function openManageAttCategories() {
         const name = inp.value.trim();
         if (!name) { toast('请输入分类名称', 'error'); return; }
         if (S.attCategories.some(c => c.name === name)) { toast('分类已存在', 'error'); return; }
-        
         S.attCategories.push({ id: uid(), name });
         save();
         inp.value = '';
@@ -1667,8 +1821,7 @@ function openManageAttCategories() {
       };
 
       listEl.addEventListener('click', async e => {
-        const row = e.target.closest('.cat-row');
-        if (!row) return;
+        const row = e.target.closest('.cat-row'); if (!row) return;
         const cid = row.dataset.cid;
         const cat = S.attCategories.find(c => c.id === cid);
         if (!cat) return;
@@ -1696,24 +1849,14 @@ function openManageAttCategories() {
           const nameEl = row.querySelector('.cat-row-name');
           const old = cat.name;
           const input = document.createElement('input');
-          input.className = 'input';
-          input.value = old;
-          input.style.width = '140px';
-          nameEl.replaceWith(input);
-          input.focus();
-          input.select();
+          input.className = 'input'; input.value = old; input.style.width = '140px';
+          nameEl.replaceWith(input); input.focus(); input.select();
 
           const commit = () => {
             const v = input.value.trim();
             if (v && v !== old) {
-              if (S.attCategories.some(c => c.name === v && c.id !== cid)) {
-                toast('分类名已存在', 'error');
-              } else {
-                cat.name = v;
-                save();
-                renderAttachmentsSidebar();
-                renderAttachmentsView();
-              }
+              if (S.attCategories.some(c => c.name === v && c.id !== cid)) toast('分类名已存在', 'error');
+              else { cat.name = v; save(); renderAttachmentsSidebar(); renderAttachmentsView(); }
             }
             renderList();
           };
@@ -1728,7 +1871,7 @@ function openManageAttCategories() {
   });
 }
 
-/* ---------------- 表格视图逻辑 ---------------- */
+/* ---------------- 表格视图 ---------------- */
 function renderSidebar(){
   const el = document.getElementById('sidebar'); const t = currentTable(); if (!t) { el.innerHTML = ''; return; }
   const catField = categoryField(t); let catHTML = '';
@@ -1748,23 +1891,11 @@ function renderToolbar(){
   let filterTagsHTML = currentFilters.map((f, idx) => {
     const field = t.fields.find(x => x.id === f.fieldId);
     const fieldLabel = field ? field.label : '未知';
-    
-    let displayVals = f.values.map(v => {
-      if (field && field.type === 'category') return catName(t, v);
-      return v;
-    }).join(', ');
-    
-    return `<div class="filter-tag">
-      <span>${esc(fieldLabel)} 包含 ${esc(displayVals)}</span>
-      <button data-del-filter="${idx}">×</button>
-    </div>`;
+    let displayVals = f.values.map(v => field && field.type === 'category' ? catName(t, v) : v).join(', ');
+    return `<div class="filter-tag"><span>${esc(fieldLabel)} 包含 ${esc(displayVals)}</span><button data-del-filter="${idx}">×</button></div>`;
   }).join('');
 
   el.innerHTML = `
-    <div class="tb-row" style="justify-content: flex-start; margin-bottom: 8px; border-bottom: 1px dashed var(--border); padding-bottom: 8px;">
-      <button class="icon-btn" id="undoBtn" title="撤回 (Ctrl+Z)" disabled>↩️</button>
-      <button class="icon-btn" id="redoBtn" title="反撤回 (Ctrl+Y)" disabled>↪️</button>
-    </div>
     <div class="tb-row">
       <div class="tb-group">
         <input id="searchInput" class="input search" type="text" placeholder="搜索当前表..." value="${esc(currentSearch)}">
@@ -1804,7 +1935,6 @@ function filteredRecords(t){
   filters.forEach(f => {
     const field = t.fields.find(x => x.id === f.fieldId);
     if (!field) return;
-    
     list = list.filter(r => {
       let v = r[f.fieldId] || '';
       if (field.type === 'category') v = catName(t, v);
@@ -1825,7 +1955,7 @@ function cellHTML(f, r){
   const v = r[f.id];
   const t = currentTable();
   switch (f.type) {
-    case 'textarea': return `<td class="cell-note" title="${esc(v)}">${esc(v || '')}</td>`;
+    case 'textarea': return `<td><div class="cell-note" title="${esc(v)}">${esc(v || '')}</div></td>`;
     case 'category': { const c = t.categories.find(c => c.id === v); return `<td><span class="tag ${c ? '' : 'tag-muted'}">${c ? esc(c.name) : '未分类'}</span></td>`; }
     case 'select': return `<td>${v ? `<span class="tag">${esc(v)}</span>` : ''}</td>`;
     case 'date': return `<td class="cell-date">${esc(v || '')}</td>`;
@@ -1833,12 +1963,32 @@ function cellHTML(f, r){
     case 'image': return `<td class="cell-img">${v ? `<img class="thumb" src="${esc(v)}" loading="lazy" alt="">` : ''}</td>`;
     case 'number': return `<td class="cell-date">${esc(v == null ? '' : v)}</td>`;
     case 'file': return `<td>${v ? `<a class="file-link" data-file="${esc(v)}">📎 ${esc(v)}</a>` : ''}</td>`;
-    default: return f.required ? `<td class="cell-name" title="${esc(v)}">${esc(v || '')}</td>` : `<td>${esc(v || '')}</td>`;
+    default: 
+      if (f.required) return `<td><div class="cell-name" title="${esc(v)}">${esc(v || '')}</div></td>`;
+      return `<td><div class="cell-text" title="${esc(v)}">${esc(v || '')}</div></td>`;
   }
 }
+
 function rowOps(t, r){
   let html = `<button class="mini-btn" data-act="edit" data-id="${r.id}">编辑</button>`;
-  if (t.role && FLOW_MAP[t.role]) { FLOW_MAP[t.role].forEach(f => { if (S.tables.find(x => x.role === f.to)) html += `<button class="mini-btn" data-act="flow" data-to="${f.to}" data-id="${r.id}">${esc(f.label)}</button>`; }); }
+  
+  const groups = S.settings.relationGroups || [];
+  const targetTableIds = new Set();
+  groups.forEach(g => {
+    if (g.tableIds.includes(t.id)) {
+      g.tableIds.forEach(id => {
+        if (id !== t.id) targetTableIds.add(id);
+      });
+    }
+  });
+
+  targetTableIds.forEach(targetId => {
+    const targetTable = S.tables.find(x => x.id === targetId);
+    if (targetTable) {
+      html += `<button class="mini-btn" data-act="flow" data-to="${targetId}" data-id="${r.id}">→ ${esc(targetTable.name)}</button>`;
+    }
+  });
+
   return html + `<button class="mini-btn danger" data-act="del" data-id="${r.id}">删除</button>`;
 }
 
@@ -1907,6 +2057,7 @@ function renderPagination(total) {
 function switchTable(id){ 
   ui.currentView = 'table';
   ui.tableId = id; ui.selectedIds.clear(); ui.page = 1;
+  try { localStorage.setItem('dfy_last_table', id); } catch(e){}
   renderView(); 
 }
 
@@ -1938,7 +2089,7 @@ function bindImageFields(container){
     pick.onclick = () => { fileInp.value = ''; fileInp.click(); };
     fileInp.onchange = async () => {
       const file = fileInp.files[0]; if (!file) return;
-      try { const dataUrl = await compressImage(file, 900, 0.72); hidden.value = dataUrl; preview.innerHTML = `<img src="${dataUrl}" alt="图片">`; clear.hidden = false; } catch (e) { toast('图片处理失败', 'error'); }
+      try { const dataUrl = await compressImage(file, 600, 0.55); hidden.value = dataUrl; preview.innerHTML = `<img src="${dataUrl}" alt="图片">`; clear.hidden = false; } catch (e) { toast('图片处理失败', 'error'); }
     };
     clear.onclick = () => { hidden.value = ''; preview.innerHTML = '<span class="img-empty">暂无图片</span>'; clear.hidden = true; };
   });
@@ -2015,7 +2166,8 @@ function openRecordForm(table, record){
         pushUndo(); 
         if (isEdit) Object.assign(record, data, { updatedAt: Date.now() });
         else table.records.push(Object.assign({ id: uid(), createdAt: Date.now(), updatedAt: Date.now() }, data));
-        if (!save()) return; closeFn(); renderView(); toast(isEdit ? '已保存' : '已新增');
+        save(); 
+        closeFn(); renderView(); toast(isEdit ? '已保存' : '已新增');
       };
     }
   });
@@ -2039,8 +2191,8 @@ async function batchDeleteRecords(t) {
   ui.selectedIds.clear();
   save(); renderView(); toast('已批量删除');
 }
-function flowRecord(t, rec, toRole){
-  const target = S.tables.find(x => x.role === toRole); if (!target) { toast('目标表不存在', 'error'); return; }
+function flowRecord(t, rec, toTargetId){
+  const target = S.tables.find(x => x.id === toTargetId); if (!target) { toast('目标表不存在', 'error'); return; }
   
   pushUndo(); 
   t.records = t.records.filter(r => r.id !== rec.id); target.records.push(Object.assign({}, rec, { id: uid(), updatedAt: Date.now() }));
@@ -2062,22 +2214,68 @@ function openNewTable(){
         body.querySelectorAll('.check-item:not(.disabled) input:checked').forEach(inp => { const p = PRESET_FIELDS[Number(inp.value)]; const f = { id: 'f_' + uid(), label: p.label, type: p.type }; if (p.options) f.options = [...p.options]; fields.push(f); });
         
         pushUndo();
-        const t = { id: 'tbl_' + uid(), name, system: false, fields, categories: defaultCategories(), records: [] }; S.tables.push(t); save(); closeFn(); switchTable(t.id); toast('已创建');
+        const t = { id: 'tbl_' + uid(), name, system: false, fields, categories: defaultCategories(), records: [], customBg: '' }; S.tables.push(t); 
+        save();
+        closeFn(); switchTable(t.id); toast('已创建');
       };
     }
   });
 }
+
 function openTableSettings(t){
   if (!t) return;
   const draft = t.fields.map(f => Object.assign({}, f, f.options ? { options: [...f.options] } : {}));
   const originalIds = t.fields.map(f => f.id);
   const body = document.createElement('div'); body.className = 'form';
-  body.innerHTML = `<div class="form-row"><label>表名称</label><input class="input" id="tblName" value="${esc(t.name)}"></div><div class="form-row"><label>字段配置</label><div id="fieldEditor" class="field-editor"></div><button class="btn" id="addFieldBtn" style="align-self:flex-start">＋ 添加字段</button></div><div class="form-row"><label style="color:var(--danger)">危险操作</label><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-danger" id="delTableBtn">删除此表</button><span style="font-size:12px;color:var(--muted)">${t.system ? '系统保护表，删除需要多次确认' : '删除后表内全部记录不可恢复'}</span></div></div>`;
+  body.innerHTML = `
+    <div class="form-row">
+      <label>表名称</label>
+      <input class="input" id="tblName" value="${esc(t.name)}">
+    </div>
+    <div class="form-row">
+      <label>独立背景壁纸（留空则使用全局壁纸）</label>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="btn" id="pickTblBg">选择图片…</button>
+        <span style="font-size:12px;color:var(--muted)">${t.customBg ? '已设置独立壁纸' : '当前使用全局壁纸'}</span>
+        <button class="btn btn-danger" id="clearTblBg" ${t.customBg ? '' : 'style="display:none"'}>清除</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>字段配置</label>
+      <div id="fieldEditor" class="field-editor"></div>
+      <button class="btn" id="addFieldBtn" style="align-self:flex-start">＋ 添加字段</button>
+    </div>
+    <div class="form-row">
+      <label style="color:var(--danger)">危险操作</label>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-danger" id="delTableBtn">删除此表</button>
+        <span style="font-size:12px;color:var(--muted)">${t.system ? '系统保护表，删除需要多次确认' : '删除后表内全部记录不可恢复'}</span>
+      </div>
+    </div>`;
   openModal({
     title: '表设置', body, width: '640px', footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-save>保存</button>`,
     onMount(el, closeFn){
       const editor = body.querySelector('#fieldEditor');
-      const renderEditor = () => { editor.innerHTML = draft.map((f, idx) => `<div class="field-row" data-idx="${idx}"><input class="input f-label" value="${esc(f.label)}" style="flex:1;min-width:96px"><select class="input f-type" style="width:112px">${FIELD_TYPES.map(ty => `<option value="${ty.value}" ${f.type === ty.value ? 'selected' : ''}>${ty.label}</option>`).join('')}</select>${f.type === 'select' ? `<input class="input f-options" value="${esc((f.options || []).join('，'))}" placeholder="选项，逗号分隔" style="flex:1;min-width:110px">` : ''}${f.required ? `<span class="field-name-tag">名称字段</span>` : `<button class="mini-btn" data-up ${idx === 0 ? 'disabled' : ''}>↑</button><button class="mini-btn" data-down ${idx === draft.length - 1 ? 'disabled' : ''}>↓</button><button class="mini-btn danger" data-del>×</button>`}</div>`).join(''); };
+      const renderEditor = () => { 
+        editor.innerHTML = draft.map((f, idx) => {
+          const isProtected = f.required || f.type === 'category';
+          const isTypeLocked = f.required || f.type === 'category';
+          
+          let tagsHtml = '';
+          if (f.required) tagsHtml = `<span class="field-name-tag" title="系统核心字段，无法删除">名称字段(核心)</span>`;
+          else if (f.type === 'category') tagsHtml = `<span class="field-name-tag" title="用于左侧分类栏，无法删除">分类字段(核心)</span>`;
+          else tagsHtml = `<button class="mini-btn" data-up ${idx === 0 ? 'disabled' : ''}>↑</button><button class="mini-btn" data-down ${idx === draft.length - 1 ? 'disabled' : ''}>↓</button><button class="mini-btn danger" data-del>×</button>`;
+
+          return `<div class="field-row" data-idx="${idx}">
+            <input class="input f-label" value="${esc(f.label)}" style="flex:1;min-width:96px" placeholder="字段名称">
+            <select class="input f-type" style="width:120px" ${isTypeLocked ? 'disabled title="该字段类型已被锁定"' : ''}>
+              ${FIELD_TYPES.map(ty => `<option value="${ty.value}" ${f.type === ty.value ? 'selected' : ''}>${ty.label}</option>`).join('')}
+            </select>
+            ${f.type === 'select' ? `<input class="input f-options" value="${esc((f.options || []).join('，'))}" placeholder="选项，逗号分隔" style="flex:1;min-width:110px">` : ''}
+            ${tagsHtml}
+          </div>`;
+        }).join(''); 
+      };
       renderEditor();
       editor.addEventListener('input', e => { const row = e.target.closest('.field-row'); if (!row) return; const f = draft[Number(row.dataset.idx)]; if (!f) return; if (e.target.classList.contains('f-label')) f.label = e.target.value; if (e.target.classList.contains('f-options')) f.options = e.target.value.split(/[，,]/).map(s => s.trim()).filter(Boolean); });
       editor.addEventListener('change', e => { if (!e.target.classList.contains('f-type')) return; const row = e.target.closest('.field-row'); const f = draft[Number(row.dataset.idx)]; f.type = e.target.value; if (f.type === 'select' && (!f.options || !f.options.length)) f.options = ['选项1','选项2']; renderEditor(); });
@@ -2085,9 +2283,45 @@ function openTableSettings(t){
         const row = e.target.closest('.field-row'); if (!row) return; const idx = Number(row.dataset.idx); const f = draft[idx];
         if (e.target.closest('[data-up]') && idx > 0) { [draft[idx - 1], draft[idx]] = [draft[idx], draft[idx - 1]]; renderEditor(); }
         else if (e.target.closest('[data-down]') && idx < draft.length - 1) { [draft[idx + 1], draft[idx]] = [draft[idx], draft[idx + 1]]; renderEditor(); }
-        else if (e.target.closest('[data-del]')) { const used = t.records.some(r => r[f.id] !== undefined && r[f.id] !== ''); const ok = await confirmDialog({ title: '删除字段', message: `确定删除字段「<b>${esc(f.label)}</b>」吗？` + (used ? '<br>该字段下已有的数据将一并删除。' : ''), danger: true, okText: '删除' }); if (!ok) return; draft.splice(idx, 1); renderEditor(); }
+        else if (e.target.closest('[data-del]')) { 
+          const used = t.records.some(r => r[f.id] !== undefined && r[f.id] !== ''); 
+          const ok = await confirmDialog({ title: '删除字段', message: `确定删除字段「<b>${esc(f.label)}</b>」吗？` + (used ? '<br>该字段下已有的数据将一并删除。' : ''), danger: true, okText: '删除' }); 
+          if (!ok) return; 
+          draft.splice(idx, 1); renderEditor(); 
+        }
       });
+      
       body.querySelector('#addFieldBtn').onclick = () => { draft.push({ id: 'f_' + uid(), label: '新字段', type: 'text' }); renderEditor(); };
+      
+      body.querySelector('#pickTblBg').onclick = () => {
+        const inp = document.getElementById('tblBgImageInput');
+        inp.value = '';
+        inp.onchange = async (ev) => {
+          const file = ev.target.files[0];
+          ev.target.value = '';
+          if (!file) return;
+          try {
+            const dataUrl = await compressImage(file, 600, 0.55);
+            t.customBg = dataUrl;
+            body.querySelector('#pickTblBg').nextElementSibling.textContent = '已设置独立壁纸';
+            body.querySelector('#clearTblBg').style.display = 'inline-block';
+            applyBg();
+            save();
+            toast('独立壁纸已设置');
+          } catch (err) { toast('图片处理失败', 'error'); }
+        };
+        inp.click();
+      };
+      
+      body.querySelector('#clearTblBg').onclick = () => {
+        t.customBg = '';
+        body.querySelector('#pickTblBg').nextElementSibling.textContent = '当前使用全局壁纸';
+        body.querySelector('#clearTblBg').style.display = 'none';
+        applyBg();
+        save();
+        toast('已恢复全局壁纸');
+      };
+
       el.querySelector('[data-cancel]').onclick = closeFn;
       el.querySelector('[data-save]').onclick = () => {
         const name = body.querySelector('#tblName').value.trim(); if (!name) { toast('表名称不能为空', 'error'); return; } if (!draft.length) { toast('至少需要一个字段', 'error'); return; }
@@ -2096,7 +2330,9 @@ function openTableSettings(t){
         const keepIds = new Set(clean.map(f => f.id)); originalIds.filter(id => !keepIds.has(id)).forEach(id => { t.records.forEach(r => { delete r[id]; }); });
         
         pushUndo();
-        t.name = name; t.fields = clean; save(); closeFn(); renderView(); toast('已保存');
+        t.name = name; t.fields = clean; 
+        save();
+        closeFn(); renderView(); toast('已保存');
       };
       body.querySelector('#delTableBtn').onclick = async () => { closeFn(); await deleteTable(t); };
     }
@@ -2114,7 +2350,9 @@ async function deleteTable(t){
   }
   
   pushUndo();
-  S.tables = S.tables.filter(x => x.id !== t.id); save(); renderView(); toast('表已删除');
+  S.tables = S.tables.filter(x => x.id !== t.id); 
+  save();
+  renderView(); toast('表已删除');
 }
 function openCategoryManager(){
   const t = currentTable(); if (!t) return;
@@ -2133,7 +2371,9 @@ function openCategoryManager(){
         if (t.categories.some(c => c.name === name)) { toast('分类已存在', 'error'); return; } 
         
         pushUndo();
-        t.categories.push({ id: uid(), name }); inp.value = ''; save(); renderList(); renderView(); toast('已添加'); 
+        t.categories.push({ id: uid(), name }); inp.value = ''; 
+        save();
+        renderList(); renderView(); toast('已添加'); 
       };
       listEl.addEventListener('click', async e => {
         const row = e.target.closest('.cat-row'); if (!row) return; const cid = row.dataset.cid; const cat = t.categories.find(c => c.id === cid); if (!cat) return;
@@ -2145,10 +2385,9 @@ function openCategoryManager(){
           pushUndo();
           t.categories = t.categories.filter(x => x.id !== cid); 
           const catField = categoryField(t);
-          if (catField) {
-            t.records.forEach(r => { if (r[catField.id] === cid) r[catField.id] = ''; }); 
-          }
-          save(); renderList(); renderView(); toast('已删除'); return; 
+          if (catField) t.records.forEach(r => { if (r[catField.id] === cid) r[catField.id] = ''; }); 
+          save();
+          renderList(); renderView(); toast('已删除'); return; 
         }
         if (e.target.closest('[data-rename]')) { 
           const nameEl = row.querySelector('.cat-row-name'); const old = cat.name; 
@@ -2170,7 +2409,7 @@ function openCategoryManager(){
   });
 }
 
-/* ---------------- 筛选浮层逻辑 ---------------- */
+/* ---------------- 筛选浮层 ---------------- */
 let currentFilterPopover = null;
 
 function openFilterPopover(anchorEl) {
@@ -2196,7 +2435,7 @@ function openFilterPopover(anchorEl) {
     let selectedCount = 0;
     
     t.fields.forEach(f => {
-      if (f.type === 'image' || f.type === 'file' || f.type === 'date' || f.type === 'datetime-local') return; 
+      if (f.type === 'image' || f.type === 'file') return; 
       if (!f.label.includes(searchKw) && !f.id.includes(searchKw)) return;
       
       const activeFilter = appliedFilters.find(af => af.fieldId === f.id);
@@ -2219,6 +2458,12 @@ function openFilterPopover(anchorEl) {
           const checked = activeFilter && activeFilter.values.includes(valId) ? 'checked' : '';
           html += `<label class="fp-val-item"><input type="checkbox" class="fp-val-cb" data-val="${esc(valId)}" ${checked}> ${esc(valName)}</label>`;
         });
+      } else if (f.type === 'date') {
+        const val = activeFilter && activeFilter.values[0] ? activeFilter.values[0] : '';
+        html += `<input type="date" class="fp-val-input fp-date-input" value="${esc(val)}" style="width:100%; padding:4px; border-radius:4px; border:1px solid var(--border); background:var(--panel-solid); color:var(--text);">`;
+      } else if (f.type === 'datetime-local') {
+        const val = activeFilter && activeFilter.values[0] ? activeFilter.values[0] : '';
+        html += `<input type="datetime-local" class="fp-val-input fp-date-input" value="${esc(val)}" style="width:100%; padding:4px; border-radius:4px; border:1px solid var(--border); background:var(--panel-solid); color:var(--text);">`;
       } else {
         const val = activeFilter && activeFilter.values[0] ? activeFilter.values[0] : '';
         html += `<input type="text" class="fp-val-input" placeholder="包含该文字..." value="${esc(val)}">`;
@@ -2255,23 +2500,20 @@ function openFilterPopover(anchorEl) {
           let af = appliedFilters.find(af => af.fieldId === fid);
           if (!af) { af = { fieldId: fid, values: [] }; appliedFilters.push(af); }
           const val = vcb.dataset.val;
-          if (vcb.checked) {
-            if (!af.values.includes(val)) af.values.push(val);
-          } else {
-            af.values = af.values.filter(v => v !== val);
-          }
+          if (vcb.checked) { if (!af.values.includes(val)) af.values.push(val); } else { af.values = af.values.filter(v => v !== val); }
           updateFilters();
         };
       });
       
       const inp = item.querySelector('.fp-val-input');
       if (inp) {
-        inp.oninput = () => {
+        const eventName = (field.type === 'date' || field.type === 'datetime-local') ? 'change' : 'input';
+        inp.addEventListener(eventName, () => {
           let af = appliedFilters.find(af => af.fieldId === fid);
           if (!af) { af = { fieldId: fid, values: [] }; appliedFilters.push(af); }
           af.values = inp.value.trim() ? [inp.value.trim()] : [];
           updateFilters();
-        };
+        });
       }
     });
   };
@@ -2290,11 +2532,9 @@ function openFilterPopover(anchorEl) {
   
   document.getElementById('fpSelectAll').onclick = () => {
     t.fields.forEach(f => {
-      if (f.type === 'image' || f.type === 'file' || f.type === 'date' || f.type === 'datetime-local') return;
+      if (f.type === 'image' || f.type === 'file') return; 
       if (fpSearch.value && !f.label.includes(fpSearch.value)) return;
-      if (!appliedFilters.find(af => af.fieldId === f.id)) {
-        appliedFilters.push({ fieldId: f.id, values: [] });
-      }
+      if (!appliedFilters.find(af => af.fieldId === f.id)) appliedFilters.push({ fieldId: f.id, values: [] });
     });
     renderList(fpSearch.value.trim());
     updateFilters();
@@ -2316,7 +2556,7 @@ function openFilterPopover(anchorEl) {
   setTimeout(() => document.addEventListener('click', currentFilterPopover), 10);
 }
 
-/* ---------------- Excel 导入导出逻辑 ---------------- */
+/* ---------------- Excel 导入导出 ---------------- */
 async function saveFileAs(content, filename, mimeType, fileTypes) {
   return new Promise(async (resolve) => {
     if (window.showSaveFilePicker) {
@@ -2337,8 +2577,7 @@ async function saveFileAs(content, filename, mimeType, fileTypes) {
       const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = filename; document.body.appendChild(a);
-      a.click();
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
       setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 200);
       toast('已下载到默认文件夹');
       resolve(true);
@@ -2378,9 +2617,7 @@ function buildTableExcel(t, isTemplate = false) {
   });
 
   if (catField) {
-    t.categories.forEach(c => {
-      if (!groupedData[c.id]) groupedData[c.id] = [];
-    });
+    t.categories.forEach(c => { if (!groupedData[c.id]) groupedData[c.id] = []; });
     if (!groupedData['']) groupedData[''] = [];
   } else {
     if (!groupedData['']) groupedData[''] = records;
@@ -2391,19 +2628,14 @@ function buildTableExcel(t, isTemplate = false) {
     const recs = groupedData[catId];
     const data = recs.map(r => cols.map(f => {
       if (f.type === 'category') return catName(t, r[f.id]);
-      if (f.type === 'image' || f.type === 'file') {
-        return r[f.id] ? r[f.id].substring(0, 32000) : ''; 
-      }
+      if (f.type === 'image' || f.type === 'file') return r[f.id] ? r[f.id].substring(0, 32000) : ''; 
       return r[f.id] == null ? '' : r[f.id];
     }));
     
     const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
     let safeName = sheetName.replace(/[\\\/\?\*\[\]\:]/g, '_').slice(0, 31);
     let finalName = safeName, idx = 1;
-    while (wb.SheetNames.includes(finalName)) {
-      finalName = safeName.slice(0, 28) + '_' + idx;
-      idx++;
-    }
+    while (wb.SheetNames.includes(finalName)) { finalName = safeName.slice(0, 28) + '_' + idx; idx++; }
     XLSX.utils.book_append_sheet(wb, ws, finalName);
   }
 
@@ -2453,10 +2685,7 @@ async function processFiles(files, isRestore, fallbackTableId) {
       let catId = '';
       if (sheetName !== '未分类') {
         let c = t.categories.find(x => x.name === sheetName);
-        if (!c) {
-          c = { id: uid(), name: sheetName };
-          t.categories.push(c);
-        }
+        if (!c) { c = { id: uid(), name: sheetName }; t.categories.push(c); }
         catId = c.id;
       }
 
@@ -2499,14 +2728,11 @@ async function processFiles(files, isRestore, fallbackTableId) {
     processedCount++;
   }
 
-  if (!save()) return;
+  save();
   renderView();
   
-  if (errorFiles.length > 0) {
-    toast(`处理完成，但有 ${errorFiles.length} 个文件未匹配到对应表: ${errorFiles.join(', ')}`, 'error');
-  } else {
-    toast(`成功处理 ${processedCount} 个文件`);
-  }
+  if (errorFiles.length > 0) toast(`处理完成，但有 ${errorFiles.length} 个文件未匹配到对应表: ${errorFiles.join(', ')}`, 'error');
+  else toast(`成功处理 ${processedCount} 个文件`);
 }
 
 async function backupAll() {
@@ -2561,18 +2787,25 @@ function compressImage(file, maxW, quality){
 function bindEvents(){
   document.getElementById('restorePermBtn').onclick = restorePermissions;
 
-  document.getElementById('tabs').addEventListener('click', e => { 
-    const tab = e.target.closest('[data-tab]'); 
-    if (tab) { 
-      if (tab.dataset.tab === '__repo') switchView('attachments');
-      else switchTable(tab.dataset.tab); 
-      return; 
-    } 
-    if (e.target.closest('[data-addtable]')) openNewTable(); 
-  });
-  document.getElementById('tabs').addEventListener('wheel', (e) => { e.preventDefault(); e.currentTarget.scrollLeft += e.deltaY; });
+  document.getElementById('btnViewRepo').onclick = () => switchView('attachments');
+  document.getElementById('btnAddTable').onclick = () => openNewTable();
   
-  document.getElementById('fastSwitchTable').addEventListener('change', e => { if (e.target.value) switchTable(e.target.value); });
+  document.getElementById('btnTableDropdown').onclick = (e) => {
+    e.stopPropagation();
+    const popover = document.getElementById('tableSearchPopover');
+    if (popover.classList.contains('show')) {
+      popover.classList.remove('show');
+      if (currentTspOutsideClick) {
+        document.removeEventListener('click', currentTspOutsideClick);
+        currentTspOutsideClick = null;
+      }
+    } else {
+      openTableSearch(document.getElementById('tableSwitcher'));
+    }
+  };
+
+  document.getElementById('undoBtn').onclick = undo;
+  document.getElementById('redoBtn').onclick = redo;
 
   document.getElementById('importExcelBtn').onclick = () => { pendingImportTable = currentTable().id; const inp = document.getElementById('importExcelInput'); inp.value = ''; inp.click(); };
   document.getElementById('exportExcelBtn').onclick = () => exportExcel(currentTable());
@@ -2760,27 +2993,23 @@ function bindEvents(){
   document.getElementById('bgImageInput').addEventListener('change', async e => { 
     const f = e.target.files[0]; e.target.value = ''; if (!f) return; 
     try { 
-      const dataUrl = await compressImage(f, 1600, 0.82); 
+      const dataUrl = await compressImage(f, 600, 0.55); 
       S.settings.bgImage = dataUrl; S.settings.bgType = 'local'; 
       save(); applyBg(); toast('背景已更新'); 
       const span = document.querySelector('#localRow span'); if(span) span.textContent = '已设置本地图片';
     } catch (err) { toast('图片处理失败', 'error'); } 
   });
-
-  // 拦截关闭行为
-  window.onbeforeunload = (e) => {
-    if (S.settings.closeBehavior === 'tray') {
-      const msg = '如果您使用的是PakePlus打包的客户端，请确保已勾选“关闭时隐藏到托盘”。';
-      e.returnValue = msg;
-      return msg;
-    }
-  };
 }
 
-function init(){
-  S = loadState();
+async function init(){
+  // 由于读取 IndexedDB 是异步的，这里整个 init 变为 async
+  S = await loadState();
   loadUiState();
-  ui.tableId = S.tables[0] ? S.tables[0].id : null;
+
+  const lastId = localStorage.getItem('dfy_last_table');
+  if (lastId && S.tables.find(t => t.id === lastId)) ui.tableId = lastId;
+  else ui.tableId = S.tables[0] ? S.tables[0].id : null;
+
   applyTheme(); applyBg(); renderView(); bindEvents();
   checkPermissionStatus();
 }
