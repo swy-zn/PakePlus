@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>大肥鱼工作台</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+<script>
+  // 全局错误捕获，防止白屏
+  window.onerror = function(msg, url, line) {
+    var errDiv = document.getElementById('globalError');
+    if (!errDiv) {
+      errDiv = document.createElement('div');
+      errDiv.id = 'globalError';
+      errDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ef4444;color:#fff;padding:10px;z-index:9999;font-size:14px;font-family:sans-serif;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
+      document.body.appendChild(errDiv);
+    }
+    errDiv.innerHTML = '<b>系统遇到错误，请截图反馈：</b><br>' + msg + '<br><small>位置：行 ' + line + '</small>';
+    return false;
+  };
+</script>
 <style>
 /* ============ 主题变量 ============ */
 :root{
@@ -283,4 +297,2834 @@ textarea.input{resize:vertical;min-height:70px;line-height:1.5;}
 .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
 .pagination button:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
 
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:240px;
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:240px;gap:12px;color:var(--muted);}
+.empty p{margin:0;font-size:13px;}
+
+/* ============ 附件仓库网格 ============ */
+.attachment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; padding: 16px; }
+.attachment-card { background: var(--panel-solid); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: .2s; text-align: center; position: relative; }
+.attachment-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--accent); }
+.attachment-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+.att-checkbox { position: absolute; top: 10px; left: 10px; accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; z-index: 2; }
+.attachment-icon { font-size: 36px; line-height: 1; margin-top: 8px; }
+.attachment-name { font-size: 13px; font-weight: 500; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.attachment-meta { font-size: 11px; color: var(--muted); }
+.att-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; }
+.att-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(125,125,125,.1); color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.att-actions { display: flex; gap: 8px; width: 100%; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; justify-content: center; }
+.att-actions button { flex: 1; padding: 4px 0; font-size: 12px; }
+
+/* ============ 弹窗 ============ */
+.modal-mask{position:fixed;inset:0;z-index:1000;background:rgba(10,15,25,.45);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease;}
+.modal{width:100%;background:var(--panel-solid);border-radius:16px;box-shadow:var(--shadow);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);animation:popIn .18s ease;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.modal-head h3{margin:0;font-size:15px;font-weight:600;}
+.modal-body{padding:18px;overflow-y:auto;flex:1;}
+.modal-foot{padding:12px 18px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);flex-shrink:0;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:none}}
+
+.form{display:flex;flex-direction:column;gap:14px;}
+.form-row{display:flex;flex-direction:column;gap:6px;}
+.form-row>label{font-size:13px;color:var(--muted);font-weight:500;}
+.req{color:var(--danger);}
+.dialog-msg{font-size:14px;line-height:1.65;color:var(--text);word-break:break-word;}
+.dialog-msg b{color:var(--accent);}
+
+.field-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.check-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;transition:.12s;}
+.check-item:hover{border-color:var(--accent);}
+.check-item.disabled{opacity:.6;cursor:not-allowed;}
+.check-item input{accent-color:var(--accent);cursor:pointer;}
+.check-item em{font-style:normal;font-size:11px;color:var(--muted);}
+
+/* ============ 设置中心 ============ */
+.settings-layout { display: flex; gap: 20px; min-height: 360px; }
+.settings-nav { width: 120px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--border); padding-right: 12px; }
+.settings-nav-item { padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--muted); transition: .15s; }
+.settings-nav-item:hover { background: var(--accent-soft); color: var(--text); }
+.settings-nav-item.active { background: var(--accent); color: #fff; }
+.settings-content { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+/* ============ 字段编辑器 ============ */
+.field-editor{display:flex;flex-direction:column;gap:8px;}
+.field-row{display:flex;gap:6px;align-items:center;padding:8px;border:1px solid var(--border);border-radius:10px;background:rgba(125,125,125,.035);flex-wrap:wrap;}
+.field-row .mini-btn{margin-left:0;}
+.field-name-tag{font-size:11px;color:var(--muted);border:1px dashed var(--border);padding:3px 8px;border-radius:7px;white-space:nowrap;}
+
+.seg{display:flex;gap:6px;flex-wrap:wrap;}
+.seg-btn{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--panel-solid);color:var(--muted);cursor:pointer;font-size:13px;font-family:inherit;transition:.15s;}
+.seg-btn:hover{border-color:var(--accent);}
+.seg-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+.cat-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
+.cat-row-name{flex:1;font-weight:500;}
+.cat-row-usage{font-size:12px;color:var(--muted);}
+.cat-add-row{display:flex;gap:8px;margin-top:12px;}
+.cat-add-row .input{flex:1;}
+
+input[type="range"]{width:100%;accent-color:var(--accent);cursor:pointer;}
+
+/* ============ 图片/文件字段 ============ */
+.img-field, .file-field{display:flex;flex-direction:column;gap:8px;}
+.img-preview{width:100%;min-height:64px;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;padding:8px;background:rgba(125,125,125,.04);}
+.img-preview img{max-width:100%;max-height:200px;border-radius:8px;display:block;}
+.img-empty{font-size:12px;color:var(--muted);}
+.img-actions{display:flex;gap:8px;}
+.thumb{width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:zoom-in;display:block;}
+.cell-img{padding:6px 12px;}
+.file-link { color: var(--accent); text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.file-link:hover { text-decoration: underline; }
+
+/* ============ Toast ============ */
+#toastRoot{position:fixed;right:18px;bottom:18px;z-index:2000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none;}
+.toast{padding:10px 16px;border-radius:10px;background:var(--panel-solid);border:1px solid var(--border);box-shadow:var(--shadow);font-size:13px;animation:slideIn .2s ease;max-width:320px;transition:.25s;}
+.toast.error{border-color:var(--danger);color:var(--danger);}
+.toast.out{opacity:0;transform:translateY(8px);}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<!-- 权限恢复提示横幅 -->
+<div id="permissionBanner">
+  <span>⚠️ 浏览器安全限制，您的文件夹访问权限在重启后失效了。</span>
+  <button id="restorePermBtn">点击一键恢复访问权限</button>
+</div>
+
+<div id="bgLayer"></div>
+
+<div id="app">
+  <header class="app-header">
+    <div class="brand"><span class="logo">🐟</span><span class="brand-name">大肥鱼工作台</span></div>
+    <div class="header-actions">
+      <button class="btn" id="manualBackupBtn" title="按表导出独立的 Excel 文件">手动备份</button>
+      <button class="btn" id="manualRestoreBtn" title="选择多个 Excel 文件进行恢复">手动恢复</button>
+      <button class="icon-btn" id="settingsBtn" title="系统设置">⚙️</button>
+    </div>
+  </header>
+
+  <nav class="tabs-container">
+    <div class="tabs-left">
+      <button class="tab tab-repo" id="btnViewRepo" style="margin-right: 4px;">📁 附件仓库</button>
+      
+      <div id="tableSwitcher" title="当前表">
+        <button id="btnCurrentTable"><span id="currentTableName">加载中...</span></button>
+        <button id="btnTableDropdown" title="展开表列表">▾</button>
+      </div>
+
+      <div style="display:flex; gap:6px; margin-left: 8px;">
+        <button class="icon-btn" id="undoBtn" title="撤回 (Ctrl+Z)" disabled>↩️</button>
+        <button class="icon-btn" id="redoBtn" title="反撤回 (Ctrl+Y)" disabled>↪️</button>
+      </div>
+      
+      <button class="tab tab-add" id="btnAddTable" style="margin-left: 8px;">＋ 新建表</button>
+    </div>
+
+    <div class="tabs-right" id="tableActions">
+      <button class="btn" id="importExcelBtn">导入</button>
+      <button class="btn" id="exportExcelBtn">导出</button>
+      <button class="btn" id="tplExcelBtn">模板</button>
+      <button class="btn" id="tblSettingsBtn">表设置</button>
+    </div>
+  </nav>
+
+  <div id="tableSearchPopover" class="table-search-popover">
+    <div class="tsp-search-wrap">
+      <input type="text" id="tspSearchInput" placeholder="搜索表名...">
+    </div>
+    <div id="tspList" class="tsp-list"></div>
+  </div>
+
+  <div class="main">
+    <aside class="sidebar" id="sidebar"></aside>
+    <section class="content">
+      <div class="toolbar" id="toolbar"></div>
+      <div class="table-wrap" id="tableWrap"></div>
+      <div class="pagination" id="pagination"></div>
+    </section>
+  </div>
+</div>
+
+<div id="filterPopover" class="filter-popover">
+  <div class="fp-header">
+    <input type="text" id="fpSearch" class="fp-search" placeholder="搜索过滤条件...">
+  </div>
+  <div class="fp-actions">
+    <span id="fpCount">已选 0 项</span>
+    <div>
+      <a id="fpSelectAll">全选</a>
+      <a id="fpClear">清除筛选项</a>
+    </div>
+  </div>
+  <div class="fp-list" id="fpList"></div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<input type="file" id="restoreInput" accept=".xlsx, .xls" multiple hidden>
+<input type="file" id="importExcelInput" accept=".xlsx, .xls" multiple hidden>
+<input type="file" id="bgImageInput" accept="image/*" hidden>
+<input type="file" id="attImportInput" multiple hidden>
+<input type="file" id="tblBgImageInput" accept="image/*" hidden>
+
+<script>
+/* ===================================================================
+   大肥鱼工作台 —— 终极版 (防白屏修复版)
+   =================================================================== */
+
+/* ---------------- 字段类型 ---------------- */
+const FIELD_TYPES = [
+  { value:'text', label:'单行文本' }, { value:'textarea', label:'多行文本' },
+  { value:'number', label:'数字' }, { value:'select', label:'下拉选项' },
+  { value:'date', label:'日期' }, { value:'datetime-local', label:'日期时间' },
+  { value:'category', label:'分类' }, { value:'image', label:'图片' },
+  { value:'file', label:'文件/附件' }
+];
+const TYPE_MAP = Object.fromEntries(FIELD_TYPES.map(t => [t.value, t]));
+
+const LEGACY_FIELDS = {
+  name: { label:'名称', type:'text', required:true },
+  note: { label:'备注', type:'textarea' },
+  category: { label:'分类', type:'category' },
+  priority: { label:'优先级', type:'select', options:['高','中','低'] },
+  planDate: { label:'计划日期', type:'date' },
+  deadline: { label:'截止时间', type:'datetime-local' },
+  bizDate: { label:'业务日期', type:'date' },
+  image: { label:'图片', type:'image' }
+};
+const PRESET_FIELDS = [
+  { label:'备注', type:'textarea' }, { label:'分类', type:'category' },
+  { label:'优先级', type:'select', options:['高','中','低'] },
+  { label:'计划日期', type:'date' }, { label:'截止时间', type:'datetime-local' },
+  { label:'图片', type:'image' }, { label:'文件/附件', type:'file' }
+];
+
+const STORAGE_KEY = 'dfy_admin_tool_v1';
+const UI_STATE_KEY = 'dfy_ui_state_v1';
+
+/* ---------------- 状态与撤销栈 ---------------- */
+let S = null;
+let undoStack = [];
+let redoStack = [];
+const MAX_UNDO = 50;
+
+let ui = { 
+  currentView: 'table',
+  tableId:null, selectedIds:new Set(), page: 1, pageSize: 20,
+  attSearch: '', attCategory: 'all', attFiles: [], attLoading: false,
+  attSelectedFiles: new Set()
+};
+let uiState = {
+  search: {},
+  categoryId: {},
+  filters: {}
+};
+let pendingImportTable = null;
+let backupDirHandle = null;
+let autoBackupInterval = null;
+
+let attachmentDirHandle = null;
+let isPermLost = false;
+
+let savedBackupDirName = '';
+let savedAttachmentDirName = '';
+
+let currentTspOutsideClick = null;
+
+/* ---------------- 小工具 ---------------- */
+const $ = sel => document.querySelector(sel);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+const fmtDateTime = v => v ? String(v).replace('T', ' ') : '';
+const formatSize = bytes => {
+  if (bytes === 0) return '0 B';
+  const k = 1024, sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+
+function loadUiState() {
+  try {
+    const raw = localStorage.getItem(UI_STATE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      uiState = Object.assign({ search: {}, categoryId: {}, filters: {} }, parsed);
+    }
+  } catch (e) {}
+}
+function saveUiState() {
+  localStorage.setItem(UI_STATE_KEY, JSON.stringify(uiState));
+}
+
+/* ---------------- 撤回栈 ---------------- */
+function pushUndo() {
+  undoStack.push(JSON.stringify(S));
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  redoStack = [];
+  updateUndoRedoBtns();
+}
+function undo() {
+  if (undoStack.length === 0) return;
+  redoStack.push(JSON.stringify(S));
+  S = JSON.parse(undoStack.pop());
+  save();
+  renderView();
+  updateUndoRedoBtns();
+  toast('已撤回');
+}
+function redo() {
+  if (redoStack.length === 0) return;
+  undoStack.push(JSON.stringify(S));
+  S = JSON.parse(redoStack.pop());
+  save();
+  renderView();
+  updateUndoRedoBtns();
+  toast('已反撤回');
+}
+function updateUndoRedoBtns() {
+  const uBtn = document.getElementById('undoBtn');
+  const rBtn = document.getElementById('redoBtn');
+  if (uBtn) uBtn.disabled = undoStack.length === 0;
+  if (rBtn) rBtn.disabled = redoStack.length === 0;
+}
+
+/* ---------------- 数据库存储引擎 (IndexedDB) ---------------- */
+function openDataDB() {
+  return new Promise((resolve) => {
+    try {
+      if (typeof indexedDB === 'undefined') { resolve(null); return; }
+      const req = indexedDB.open('DFY_DataDB', 1);
+      req.onupgradeneeded = e => { 
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('appState')) db.createObjectStore('appState');
+      };
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror = () => resolve(null);
+    } catch(e) { resolve(null); }
+  });
+}
+
+async function saveToDB(data) {
+  try {
+    const db = await openDataDB();
+    if (!db) return false;
+    const tx = db.transaction('appState', 'readwrite');
+    tx.objectStore('appState').put(data, 'current');
+    return true;
+  } catch(e) { console.error('保存到数据库失败', e); return false; }
+}
+
+function loadFromDB() {
+  return new Promise((resolve) => {
+    try {
+      if (typeof indexedDB === 'undefined') { resolve(null); return; }
+      const req = indexedDB.open('DFY_DataDB', 1);
+      req.onupgradeneeded = e => { 
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('appState')) db.createObjectStore('appState');
+      };
+      req.onsuccess = e => {
+        const db = e.target.result;
+        const tx = db.transaction('appState', 'readonly');
+        const getReq = tx.objectStore('appState').get('current');
+        getReq.onsuccess = () => resolve(getReq.result || null);
+        getReq.onerror = () => resolve(null);
+      };
+      req.onerror = () => resolve(null);
+    } catch(e) { resolve(null); }
+  });
+}
+
+/* ---------------- 目录句柄 (IndexedDB) ---------------- */
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('DFY_BackupDB', 2);
+    req.onupgradeneeded = e => { 
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('handles')) db.createObjectStore('handles');
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+async function saveDirHandle(type, handle) {
+  const db = await openDB();
+  const tx = db.transaction('handles', 'readwrite');
+  tx.objectStore('handles').put(handle, type);
+  
+  if (type === 'backup') savedBackupDirName = handle.name;
+  if (type === 'attachment') savedAttachmentDirName = handle.name;
+  localStorage.setItem('dfy_dir_names', JSON.stringify({ backup: savedBackupDirName, attachment: savedAttachmentDirName }));
+  
+  return new Promise(res => tx.oncomplete = res);
+}
+async function getDirHandle(type) {
+  const db = await openDB();
+  const tx = db.transaction('handles', 'readonly');
+  const req = tx.objectStore('handles').get(type);
+  return new Promise(res => req.onsuccess = () => res(req.result));
+}
+
+/* ---------------- 持久化 ---------------- */
+function save(){
+  saveToDB(S);
+  return true;
+}
+
+function defaultFields(){
+  return [
+    { id:'f_name', label:'名称', type:'text', required:true },
+    { id:'f_note', label:'备注', type:'textarea' },
+    { id:'f_cat', label:'分类', type:'category' },
+    { id:'f_prio', label:'优先级', type:'select', options:['高','中','低'] },
+    { id:'f_plan', label:'计划日期', type:'date' },
+    { id:'f_ddl', label:'截止时间', type:'datetime-local' }
+  ];
+}
+function defaultCategories(){
+  return [{ id: uid(), name: '工作' }, { id: uid(), name: '生活' }, { id: uid(), name: '学习' }];
+}
+function defaultState(){
+  return {
+    version: 34,
+    tables: [
+      { id:'sys_todo', name:'待办', system:true, fields: defaultFields(), categories: defaultCategories(), records:[], customBg: '' },
+      { id:'sys_done', name:'已完成', system:true, fields: defaultFields(), categories: defaultCategories(), records:[], customBg: '' },
+      { id:'sys_archive', name:'存档', system:true, fields: defaultFields(), categories: defaultCategories(), records:[], customBg: '' }
+    ],
+    attCategories: [{ id: uid(), name: '流程文档' }, { id: uid(), name: '操作手册' }],
+    attTags: {}, 
+    settings: { 
+      theme:'light', bgType:'none', bgUrl:'', bgImage:'', bgOpacity:0.22, bgBlur:0,
+      autoBackupMin: 0, accentColor: '#4f7cff', fontFamily: '',
+      panelAlpha: 0.75, panelSolidAlpha: 1,
+      relationGroups: [
+        { id: 'rel_default', name: '默认流转', tableIds: ['sys_todo', 'sys_done', 'sys_archive'] }
+      ]
+    }
+  };
+}
+function normalizeField(f){
+  if (typeof f === 'string') { const leg = LEGACY_FIELDS[f] || { label: f, type: 'text' }; return Object.assign({ id: f }, leg); }
+  const t = TYPE_MAP[f.type] ? f.type : 'text';
+  const o = { id: f.id || ('f_'+uid()), label: (f.label || '未命名字段').trim() || '未命名字段', type: t };
+  if (t === 'select') o.options = (Array.isArray(f.options) && f.options.length) ? f.options.map(String) : ['选项1','选项2'];
+  if (f.required) o.required = true;
+  return o;
+}
+function normalizeTable(t, globalCats){
+  if (!t.id) t.id = 'tbl_' + uid();
+  if (!t.name) t.name = '未命名表';
+  if (!Array.isArray(t.records)) t.records = [];
+  
+  if (!Array.isArray(t.categories)) {
+    t.categories = globalCats ? globalCats.map(c => ({ id: c.id, name: c.name })) : defaultCategories();
+  }
+
+  let fs = Array.isArray(t.fields) ? t.fields.map(normalizeField) : [];
+  const seen = new Set();
+  fs.forEach(f => { if (seen.has(f.id)) f.id = 'f_' + uid(); seen.add(f.id); });
+  if (!fs.length) fs = defaultFields();
+  let req = fs.find(f => f.required);
+  if (!req) { const ft = fs.find(f => f.type === 'text' || f.type === 'textarea'); if (ft) ft.required = true; else fs.unshift({ id: 'f_'+uid(), label: '名称', type: 'text', required: true }); }
+  let found = false;
+  fs.forEach(f => { if (f.required) { if (found) delete f.required; else { found = true; f.type = 'text'; delete f.options; } } });
+  t.fields = fs;
+  t.records.forEach(r => { if (!r.id) r.id = uid(); });
+}
+function normalizeState(s){
+  const d = defaultState();
+  if (!s || typeof s !== 'object') s = d;
+  s.version = 34;
+  if (!Array.isArray(s.tables) || !s.tables.length) s.tables = d.tables;
+  
+  const globalCats = s.categories || d.categories || defaultCategories();
+  delete s.categories; 
+
+  s.settings = Object.assign({}, d.settings, s.settings || {});
+  if (typeof s.settings.panelAlpha !== 'number') s.settings.panelAlpha = 0.75;
+  if (typeof s.settings.panelSolidAlpha !== 'number') s.settings.panelSolidAlpha = 1;
+  if (!Array.isArray(s.settings.relationGroups)) s.settings.relationGroups = d.settings.relationGroups;
+  if (!Array.isArray(s.attCategories)) s.attCategories = d.attCategories || [];
+  if (!s.attTags) s.attTags = {};
+  
+  s.tables.forEach(t => normalizeTable(t, globalCats));
+  
+  const seen = new Set();
+  s.tables.forEach(t => { if (seen.has(t.id)) t.id = 'tbl_' + uid(); seen.add(t.id); });
+  return s;
+}
+
+function loadState(){
+  return new Promise((resolve) => {
+    loadFromDB().then(dbData => {
+      if (dbData) {
+        resolve(normalizeState(dbData));
+        return;
+      }
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          const normalized = normalizeState(parsed);
+          saveToDB(normalized);
+          localStorage.removeItem(STORAGE_KEY);
+          resolve(normalized);
+          return;
+        } catch(e) {}
+      }
+      resolve(defaultState());
+    }).catch(() => resolve(defaultState()));
+  });
+}
+
+/* ---------------- 通用弹窗 ---------------- */
+function openModal(opts){
+  const root = document.getElementById('modalRoot');
+  const mask = document.createElement('div'); mask.className = 'modal-mask';
+  mask.innerHTML = `<div class="modal" style="max-width:${opts.width || '560px'}"><div class="modal-head"><h3>${esc(opts.title || '')}</h3><button class="icon-btn" data-modal-close>✕</button></div><div class="modal-body"></div>${opts.footer !== undefined ? `<div class="modal-foot">${opts.footer}</div>` : ''}</div>`;
+  const bodyEl = mask.querySelector('.modal-body');
+  if (typeof opts.body === 'string') bodyEl.innerHTML = opts.body; else if (opts.body) bodyEl.appendChild(opts.body);
+  root.appendChild(mask);
+  let closed = false;
+  const close = () => { if (closed) return; closed = true; mask.remove(); if (opts.onClose) opts.onClose(); };
+  mask.querySelector('[data-modal-close]').onclick = close;
+  if (opts.onMount) opts.onMount(mask, close);
+  return { el: mask, close };
+}
+function confirmDialog(opts){
+  return new Promise(resolve => {
+    const { title = '请确认', message = '', okText = '确定', cancelText = '取消', danger = false, requireText = null } = opts || {};
+    let resolved = false; let closeRef = null;
+    const finish = v => { if (resolved) return; resolved = true; if (closeRef) closeRef(); resolve(v); };
+    const bodyHTML = `<div class="dialog-msg">${message}</div>` + (requireText ? `<div class="form-row" style="margin-top:14px"><label>请输入 <b style="color:var(--danger)">${esc(requireText)}</b> 以确认</label><input class="input" id="confirmTextInput" autocomplete="off"></div>` : '');
+    const modal = openModal({
+      title, body: bodyHTML, width: '430px',
+      footer: `<button class="btn" data-cancel>${esc(cancelText)}</button><button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-ok>${esc(okText)}</button>`,
+      onMount(el){
+        el.querySelector('[data-cancel]').onclick = () => finish(false);
+        const okBtn = el.querySelector('[data-ok]'); const inp = el.querySelector('#confirmTextInput');
+        if (inp) { okBtn.disabled = true; okBtn.style.opacity = .5; inp.addEventListener('input', () => { const ok = inp.value.trim() === requireText; okBtn.disabled = !ok; okBtn.style.opacity = ok ? 1 : .5; }); setTimeout(() => inp.focus(), 60); }
+        okBtn.onclick = () => { if (!okBtn.disabled) finish(true); };
+      },
+      onClose(){ if (!resolved) { resolved = true; resolve(false); } }
+    });
+    closeRef = modal.close;
+  });
+}
+function toast(msg, type){
+  const root = document.getElementById('toastRoot'); const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : ''); el.textContent = msg; root.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 2200);
+}
+
+/* ===================================================================
+   设置中心
+   =================================================================== */
+function openSettings() {
+  const s = S.settings;
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="settings-layout">
+      <div class="settings-nav">
+        <div class="settings-nav-item active" data-tab="general">常规设置</div>
+        <div class="settings-nav-item" data-tab="appearance">外观壁纸</div>
+        <div class="settings-nav-item" data-tab="flow">流转关系</div>
+        <div class="settings-nav-item" data-tab="backup">数据备份</div>
+        <div class="settings-nav-item" data-tab="attachment">附件仓库</div>
+      </div>
+      <div class="settings-content" id="settingsContent"></div>
+    </div>
+  `;
+
+  const renderTab = (tab) => {
+    const content = body.querySelector('#settingsContent');
+    if (tab === 'general') {
+      content.innerHTML = `
+        <div class="form-row">
+          <label>主题模式</label>
+          <div class="seg">
+            <button class="seg-btn ${s.theme === 'light' ? 'active' : ''}" data-theme="light">☀️ 浅色</button>
+            <button class="seg-btn ${s.theme === 'dark' ? 'active' : ''}" data-theme="dark">🌙 深色</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>主题颜色 (Accent Color)</label>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="color" id="accentColorInput" value="${s.accentColor || '#4f7cff'}" style="width:40px;height:30px;padding:0;border:none;cursor:pointer;">
+            <span style="font-size:12px;color:var(--muted)">点击选择颜色</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>系统字体</label>
+          <select class="input" id="fontSelect">
+            <option value="" ${!s.fontFamily ? 'selected' : ''}>系统默认</option>
+            <option value="'Microsoft YaHei', sans-serif" ${s.fontFamily === "'Microsoft YaHei', sans-serif" ? 'selected' : ''}>微软雅黑</option>
+            <option value="'PingFang SC', sans-serif" ${s.fontFamily === "'PingFang SC', sans-serif" ? 'selected' : ''}>苹方</option>
+            <option value="'SimSun', serif" ${s.fontFamily === "'SimSun', serif" ? 'selected' : ''}>宋体</option>
+            <option value="'KaiTi', serif" ${s.fontFamily === "'KaiTi', serif" ? 'selected' : ''}>楷体</option>
+            <option value="'SimHei', sans-serif" ${s.fontFamily === "'SimHei', sans-serif" ? 'selected' : ''}>黑体</option>
+            <option value="'FangSong', serif" ${s.fontFamily === "'FangSong', serif" ? 'selected' : ''}>仿宋</option>
+            <option value="'Comic Sans MS', cursive" ${s.fontFamily === "'Comic Sans MS', cursive" ? 'selected' : ''}>Comic Sans</option>
+            <option value="Arial, sans-serif" ${s.fontFamily === "Arial, sans-serif" ? 'selected' : ''}>Arial</option>
+            <option value="'Segoe UI', sans-serif" ${s.fontFamily === "'Segoe UI', sans-serif" ? 'selected' : ''}>Segoe UI</option>
+            <option value="'Times New Roman', serif" ${s.fontFamily === "'Times New Roman', serif" ? 'selected' : ''}>Times New Roman</option>
+            <option value="'Courier New', monospace" ${s.fontFamily === "'Courier New', monospace" ? 'selected' : ''}>Courier New</option>
+          </select>
+        </div>
+      `;
+      content.querySelectorAll('[data-theme]').forEach(btn => {
+        btn.onclick = () => {
+          S.settings.theme = btn.dataset.theme;
+          content.querySelectorAll('[data-theme]').forEach(b => b.classList.toggle('active', b === btn));
+          save(); applyTheme();
+        };
+      });
+      content.querySelector('#accentColorInput').onchange = (e) => {
+        S.settings.accentColor = e.target.value;
+        save(); applyTheme();
+      };
+      content.querySelector('#fontSelect').onchange = (e) => {
+        S.settings.fontFamily = e.target.value;
+        save(); applyTheme();
+      };
+    } else if (tab === 'appearance') {
+      const pa = (typeof s.panelAlpha === 'number') ? s.panelAlpha : 0.75;
+      const psa = (typeof s.panelSolidAlpha === 'number') ? s.panelSolidAlpha : 1;
+      let perTableId = ui.tableId || (S.tables[0] && S.tables[0].id) || '';
+
+      content.innerHTML = `
+        <div class="form-row">
+          <label>全局背景壁纸</label>
+          <div class="seg">
+            <button class="seg-btn ${s.bgType === 'none' ? 'active' : ''}" data-bg="none">无背景</button>
+            <button class="seg-btn ${s.bgType === 'url' ? 'active' : ''}" data-bg="url">在线壁纸</button>
+            <button class="seg-btn ${s.bgType === 'local' ? 'active' : ''}" data-bg="local">本地图片</button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6;">
+            选「无背景」时，只有下方设置过独立壁纸的表才有背景。
+          </div>
+        </div>
+        <div class="form-row" id="urlRow" style="display:${s.bgType === 'url' ? 'flex' : 'none'}">
+          <label>壁纸地址（需要联网）</label>
+          <input class="input" id="bgUrlInput" placeholder="https://..." value="${esc(s.bgUrl)}">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+            <button class="mini-btn" data-preset="https://picsum.photos/1920/1080" style="margin-left:0">随机图片</button>
+            <button class="mini-btn" data-preset="https://api.dujin.org/bing/1920.php">必应每日壁纸</button>
+          </div>
+        </div>
+        <div class="form-row" id="localRow" style="display:${s.bgType === 'local' ? 'flex' : 'none'}">
+          <label>本地图片</label>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn" id="pickBg">选择图片…</button>
+            <span style="font-size:12px;color:var(--muted)">${s.bgImage ? '已设置本地图片' : '尚未设置'}</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>背景透明度（壁纸本身） <span id="opVal" style="color:var(--accent)">${Math.round(s.bgOpacity * 100)}%</span></label>
+          <input type="range" min="0" max="100" value="${Math.round(s.bgOpacity * 100)}" id="opRange">
+        </div>
+        <div class="form-row">
+          <label>背景模糊 <span id="blurVal" style="color:var(--accent)">${s.bgBlur}px</span></label>
+          <input type="range" min="0" max="20" value="${s.bgBlur}" id="blurRange">
+        </div>
+
+        <div style="border-top:1px dashed var(--border);margin:4px 0;"></div>
+
+        <div class="form-row">
+          <label>界面面板不透明度 <span id="paVal" style="color:var(--accent)">${Math.round(pa * 100)}%</span></label>
+          <input type="range" min="0" max="100" value="${Math.round(pa * 100)}" id="panelAlphaRange">
+          <div style="font-size:12px;color:var(--muted);">控制侧边栏、工具栏、表格容器、顶栏、标签栏。拖到 <b>0%</b> 时这些区域完全透明，壁纸全部透出。</div>
+        </div>
+        <div class="form-row">
+          <label>控件不透明度 <span id="psaVal" style="color:var(--accent)">${Math.round(psa * 100)}%</span></label>
+          <input type="range" min="0" max="100" value="${Math.round(psa * 100)}" id="panelSolidAlphaRange">
+          <div style="font-size:12px;color:var(--muted);">控制按钮、输入框、表格表头、弹窗、卡片、附件卡片等。拖到 <b>0%</b> 时完全透明。</div>
+        </div>
+
+        <div style="border-top:1px dashed var(--border);margin:4px 0;"></div>
+
+        <div class="form-row">
+          <label>按表独立壁纸</label>
+          <select class="input" id="perTableSelect">
+            ${S.tables.map(t => `<option value="${t.id}" ${t.id === perTableId ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}
+          </select>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">
+            <button class="btn" id="perTablePick">选择图片…</button>
+            <button class="btn btn-danger" id="perTableClear">清除此表壁纸</button>
+            <span id="perTableStatus" style="font-size:12px;color:var(--muted)"></span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6;">
+            提示：设置后只对该表生效，优先于全局壁纸。把上方全局壁纸设为「无背景」时，只有设置了独立壁纸的表才会显示背景。
+          </div>
+        </div>
+      `;
+      const urlInput = content.querySelector('#bgUrlInput');
+      if(urlInput) {
+        urlInput.addEventListener('input', () => { S.settings.bgUrl = urlInput.value; applyBg(); });
+        urlInput.addEventListener('blur', save);
+      }
+      content.querySelectorAll('[data-bg]').forEach(btn => {
+        btn.onclick = () => {
+          S.settings.bgType = btn.dataset.bg;
+          content.querySelectorAll('[data-bg]').forEach(b => b.classList.toggle('active', b === btn));
+          content.querySelector('#urlRow').style.display = S.settings.bgType === 'url' ? 'flex' : 'none';
+          content.querySelector('#localRow').style.display = S.settings.bgType === 'local' ? 'flex' : 'none';
+          save(); applyBg();
+        };
+      });
+      content.querySelectorAll('[data-preset]').forEach(btn => {
+        btn.onclick = () => {
+          content.querySelector('#bgUrlInput').value = btn.dataset.preset;
+          S.settings.bgUrl = btn.dataset.preset;
+          S.settings.bgType = 'url';
+          content.querySelectorAll('[data-bg]').forEach(b => b.classList.toggle('active', b.dataset.bg === 'url'));
+          content.querySelector('#urlRow').style.display = 'flex';
+          content.querySelector('#localRow').style.display = 'none';
+          save(); applyBg();
+        };
+      });
+      content.querySelector('#pickBg').onclick = () => document.getElementById('bgImageInput').click();
+      const opRange = content.querySelector('#opRange');
+      opRange.addEventListener('input', () => { S.settings.bgOpacity = Number(opRange.value) / 100; content.querySelector('#opVal').textContent = opRange.value + '%'; applyBg(); });
+      opRange.addEventListener('change', save);
+      const blurRange = content.querySelector('#blurRange');
+      blurRange.addEventListener('input', () => { S.settings.bgBlur = Number(blurRange.value); content.querySelector('#blurVal').textContent = blurRange.value + 'px'; applyBg(); });
+      blurRange.addEventListener('change', save);
+
+      const paRange = content.querySelector('#panelAlphaRange');
+      paRange.addEventListener('input', () => {
+        S.settings.panelAlpha = Number(paRange.value) / 100;
+        content.querySelector('#paVal').textContent = paRange.value + '%';
+        applyTheme();
+      });
+      paRange.addEventListener('change', save);
+
+      const psaRange = content.querySelector('#panelSolidAlphaRange');
+      psaRange.addEventListener('input', () => {
+        S.settings.panelSolidAlpha = Number(psaRange.value) / 100;
+        content.querySelector('#psaVal').textContent = psaRange.value + '%';
+        applyTheme();
+      });
+      psaRange.addEventListener('change', save);
+
+      const perSelect = content.querySelector('#perTableSelect');
+      const updatePerTableStatus = () => {
+        const t = S.tables.find(x => x.id === perTableId);
+        const st = content.querySelector('#perTableStatus');
+        const clr = content.querySelector('#perTableClear');
+        const pick = content.querySelector('#perTablePick');
+        if (!st || !clr || !pick) return;
+        if (!t) { st.textContent = ''; clr.style.display = 'none'; return; }
+        if (t.customBg) {
+          st.textContent = '✅ 已设置独立壁纸';
+          clr.style.display = 'inline-block';
+          pick.textContent = '重新选择图片…';
+        } else {
+          st.textContent = '未设置（使用全局壁纸）';
+          clr.style.display = 'none';
+          pick.textContent = '选择图片…';
+        }
+      };
+      perSelect.onchange = () => { perTableId = perSelect.value; updatePerTableStatus(); };
+      updatePerTableStatus();
+
+      content.querySelector('#perTablePick').onclick = () => {
+        const inp = document.getElementById('tblBgImageInput');
+        inp.value = '';
+        inp.onchange = async (ev) => {
+          const file = ev.target.files[0];
+          ev.target.value = '';
+          if (!file) return;
+          try {
+            const dataUrl = await compressImage(file, 600, 0.55);
+            const t = S.tables.find(x => x.id === perTableId);
+            if (!t) return;
+            t.customBg = dataUrl;
+            save(); applyBg();
+            updatePerTableStatus();
+            toast('已设置该表壁纸');
+          } catch (err) { toast('图片处理失败', 'error'); }
+        };
+        inp.click();
+      };
+
+      content.querySelector('#perTableClear').onclick = () => {
+        const t = S.tables.find(x => x.id === perTableId);
+        if (!t) return;
+        t.customBg = '';
+        save(); applyBg();
+        updatePerTableStatus();
+        toast('已清除该表壁纸');
+      };
+    } else if (tab === 'flow') {
+      const groups = S.settings.relationGroups || [];
+      content.innerHTML = `
+        <div class="form-row">
+          <label>流转关系组（同一组内的表可以互相流转记录）</label>
+          <div id="flowGroupsContainer" style="display:flex;flex-direction:column;gap:12px;">
+            ${groups.map((g, idx) => `
+              <div class="cat-row" style="flex-direction:column;align-items:stretch;gap:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <strong>${esc(g.name || '未命名组')}</strong>
+                  <button class="mini-btn danger" data-del-flow-group="${idx}">删除组</button>
+                </div>
+                <div style="font-size:12px;color:var(--muted);">
+                  包含的表：${g.tableIds.map(id => { const tb = S.tables.find(x => x.id === id); return esc(tb ? tb.name : '未知表'); }).join(' ↔ ')}
+                </div>
+              </div>
+            `).join('')}
+            ${groups.length === 0 ? '<div style="color:var(--muted);font-size:13px;">暂无关系组</div>' : ''}
+          </div>
+          <button class="btn btn-primary" id="addFlowGroupBtn" style="margin-top:12px;align-self:flex-start;">＋ 新建关系组</button>
+        </div>
+      `;
+
+      content.querySelector('#addFlowGroupBtn').onclick = () => {
+        const modalBody = document.createElement('div');
+        modalBody.className = 'form';
+        modalBody.innerHTML = `
+          <div class="form-row">
+            <label>关系组名称（可选）</label>
+            <input class="input" id="flowGroupName" placeholder="例如：任务流转">
+          </div>
+          <div class="form-row">
+            <label>勾选需要互通的表</label>
+            <div class="field-list">
+              ${S.tables.map(t => `<label class="check-item"><input type="checkbox" class="flow-table-cb" value="${t.id}"><span>${esc(t.name)}</span></label>`).join('')}
+            </div>
+          </div>
+        `;
+        openModal({
+          title: '新建流转关系组', body: modalBody, width: '450px',
+          footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-ok>确定</button>`,
+          onMount(mEl, mClose) {
+            mEl.querySelector('[data-cancel]').onclick = mClose;
+            mEl.querySelector('[data-ok]').onclick = () => {
+              const name = mEl.querySelector('#flowGroupName').value.trim() || '未命名组';
+              const checked = Array.from(mEl.querySelectorAll('.flow-table-cb:checked')).map(cb => cb.value);
+              if (checked.length < 2) { toast('请至少勾选两个表才能建立流转关系', 'error'); return; }
+              
+              if (!S.settings.relationGroups) S.settings.relationGroups = [];
+              S.settings.relationGroups.push({ id: 'grp_' + uid(), name, tableIds: checked });
+              save();
+              mClose();
+              renderTab('flow');
+              toast('关系组已创建');
+            };
+          }
+        });
+      };
+
+      content.querySelectorAll('[data-del-flow-group]').forEach(btn => {
+        btn.onclick = async () => {
+          const idx = Number(btn.dataset.delFlowGroup);
+          const ok = await confirmDialog({ title: '删除关系组', message: '删除后这些表将无法互相流转，确定吗？', danger: true, okText: '删除' });
+          if (!ok) return;
+          S.settings.relationGroups.splice(idx, 1);
+          save();
+          renderTab('flow');
+          toast('已删除');
+        };
+      });
+    } else if (tab === 'backup') {
+      const bNameDisplay = savedBackupDirName ? `上次选择: ${savedBackupDirName}` : '未选择';
+      content.innerHTML = `
+        <div class="form-row">
+          <label>自动备份文件夹</label>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="btn btn-primary" id="pickDirBtn">${backupDirHandle ? '重新选择文件夹' : '选择备份文件夹'}</button>
+            <span style="font-size:12px; color:${backupDirHandle ? 'var(--ok)' : 'var(--muted)'}">${backupDirHandle ? '✅ ' + bNameDisplay : bNameDisplay}</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>自动备份频率</label>
+          <select class="input" id="backupIntervalSelect">
+            <option value="0" ${s.autoBackupMin === 0 ? 'selected' : ''}>关闭自动备份</option>
+            <option value="1" ${s.autoBackupMin === 1 ? 'selected' : ''}>每 1 分钟</option>
+            <option value="5" ${s.autoBackupMin === 5 ? 'selected' : ''}>每 5 分钟</option>
+            <option value="15" ${s.autoBackupMin === 15 ? 'selected' : ''}>每 15 分钟</option>
+            <option value="30" ${s.autoBackupMin === 30 ? 'selected' : ''}>每 30 分钟</option>
+          </select>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:var(--muted); line-height:1.6;">
+          提示：自动备份会在你选择的文件夹中，为每张表生成单独的 Excel 文件（内部按分类拆分为多个 Sheet 页）。每次备份会直接<b>覆盖</b>旧文件，不会增加文件数量。
+        </div>
+      `;
+      content.querySelector('#pickDirBtn').onclick = async () => {
+        if (!window.showDirectoryPicker) { toast('当前环境不支持选择文件夹', 'error'); return; }
+        try {
+          const handle = await window.showDirectoryPicker({ id: 'backup', mode: 'readwrite' });
+          const perm = await handle.requestPermission({ mode: 'readwrite' });
+          if (perm === 'granted') {
+            backupDirHandle = handle;
+            await saveDirHandle('backup', handle);
+            content.querySelector('#pickDirBtn').textContent = '重新选择文件夹';
+            const span = content.querySelector('#pickDirBtn').nextElementSibling;
+            span.textContent = `✅ 上次选择: ${handle.name}`; span.style.color = 'var(--ok)';
+            toast('备份文件夹设置成功');
+            checkPermissionStatus();
+          }
+        } catch (err) { if (err.name !== 'AbortError') toast('设置失败', 'error'); }
+      };
+      content.querySelector('#backupIntervalSelect').onchange = (e) => {
+        S.settings.autoBackupMin = Number(e.target.value);
+        save(); startAutoBackup();
+      };
+    } else if (tab === 'attachment') {
+      const aNameDisplay = savedAttachmentDirName ? `上次选择: ${savedAttachmentDirName}` : '未选择';
+      content.innerHTML = `
+        <div class="form-row">
+          <label>附件仓库文件夹 (用于存放视频/PDF等大文件)</label>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="btn btn-primary" id="pickAttachDirBtn">${attachmentDirHandle ? '重新选择文件夹' : '选择附件文件夹'}</button>
+            <span style="font-size:12px; color:${attachmentDirHandle ? 'var(--ok)' : 'var(--muted)'}">${attachmentDirHandle ? '✅ ' + aNameDisplay : aNameDisplay}</span>
+          </div>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:var(--muted); line-height:1.6;">
+          提示：当你上传文件/附件时，文件实体将被直接存入这个文件夹。软件里只保存文件名。<br>
+          ⚠️ <b>请勿随意删除或改名该文件夹里的文件</b>，否则会导致表格里的附件链接失效。
+        </div>
+      `;
+      content.querySelector('#pickAttachDirBtn').onclick = async () => {
+        if (!window.showDirectoryPicker) { toast('当前环境不支持选择文件夹', 'error'); return; }
+        try {
+          const handle = await window.showDirectoryPicker({ id: 'attachment', mode: 'readwrite' });
+          const perm = await handle.requestPermission({ mode: 'readwrite' });
+          if (perm === 'granted') {
+            attachmentDirHandle = handle;
+            await saveDirHandle('attachment', handle);
+            content.querySelector('#pickAttachDirBtn').textContent = '重新选择文件夹';
+            const span = content.querySelector('#pickAttachDirBtn').nextElementSibling;
+            span.textContent = `✅ 上次选择: ${handle.name}`; span.style.color = 'var(--ok)';
+            toast('附件仓库设置成功');
+            checkPermissionStatus();
+            if (ui.currentView === 'attachments') loadAttachments();
+          }
+        } catch (err) { if (err.name !== 'AbortError') toast('设置失败', 'error'); }
+      };
+    }
+  };
+
+  body.querySelectorAll('.settings-nav-item').forEach(item => {
+    item.onclick = () => {
+      body.querySelectorAll('.settings-nav-item').forEach(i => i.classList.toggle('active', i === item));
+      renderTab(item.dataset.tab);
+    };
+  });
+  renderTab('general');
+
+  openModal({
+    title: '⚙️ 系统设置', body, width: '700px',
+    footer: `<button class="btn btn-primary" data-cancel>完成</button>`,
+    onMount(el, closeFn) { el.querySelector('[data-cancel]').onclick = closeFn; }
+  });
+}
+
+/* ===================================================================
+   自动备份 & 权限初始化
+   =================================================================== */
+async function performAutoBackup() {
+  if (!backupDirHandle || S.settings.autoBackupMin === 0) return;
+  try {
+    const perm = await backupDirHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') return; 
+    if (typeof XLSX === 'undefined') return;
+
+    // 1. 整理当前表名
+    const currentFileNames = new Set();
+    S.tables.forEach(t => {
+      currentFileNames.add(t.name.replace(/[\\\/\?\*\[\]\:]/g, '_') + '.xlsx');
+    });
+
+    // 2. 清理旧文件（改名或删除残留）
+    try {
+      for await (const entry of backupDirHandle.values()) {
+        if (entry.kind === 'file' && entry.name.endsWith('.xlsx')) {
+          if (!currentFileNames.has(entry.name)) {
+            await backupDirHandle.removeEntry(entry.name);
+          }
+        }
+      }
+    } catch (e) { console.warn('清理旧备份文件出错', e); }
+
+    // 3. 写入新文件
+    for (const t of S.tables) {
+      const wb = buildTableExcel(t, false);
+      const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const fileName = t.name.replace(/[\\\/\?\*\[\]\:]/g, '_') + '.xlsx';
+      
+      const fileHandle = await backupDirHandle.getFileHandle(fileName, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(buffer);
+      await writable.close();
+    }
+  } catch (err) { console.error('自动备份失败:', err); }
+}
+
+function startAutoBackup() {
+  if (autoBackupInterval) clearInterval(autoBackupInterval);
+  const min = S.settings.autoBackupMin;
+  if (min > 0 && backupDirHandle) autoBackupInterval = setInterval(performAutoBackup, min * 60 * 1000);
+}
+
+async function checkPermissionStatus() {
+  let lost = false;
+  const banner = document.getElementById('permissionBanner');
+  
+  try {
+    const namesStr = localStorage.getItem('dfy_dir_names');
+    if (namesStr) {
+      const names = JSON.parse(namesStr);
+      savedBackupDirName = names.backup || '';
+      savedAttachmentDirName = names.attachment || '';
+    }
+
+    const bHandle = await getDirHandle('backup');
+    if (bHandle) {
+      backupDirHandle = bHandle;
+      savedBackupDirName = bHandle.name;
+      try {
+        const perm = await bHandle.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted') startAutoBackup(); else lost = true;
+      } catch (e) { lost = true; }
+    }
+    
+    const aHandle = await getDirHandle('attachment');
+    if (aHandle) {
+      attachmentDirHandle = aHandle;
+      savedAttachmentDirName = aHandle.name;
+      try {
+        const perm = await aHandle.queryPermission({ mode: 'readwrite' });
+        if (perm !== 'granted') lost = true;
+      } catch (e) { lost = true; }
+    }
+  } catch (e) { console.warn('初始化目录句柄失败', e); }
+  
+  isPermLost = lost;
+  if (lost) banner.style.display = 'flex';
+  else banner.style.display = 'none';
+}
+
+async function restorePermissions() {
+  let restoredCount = 0;
+  try {
+    if (backupDirHandle && (await backupDirHandle.queryPermission({ mode: 'readwrite' })) !== 'granted') {
+      const req = await backupDirHandle.requestPermission({ mode: 'readwrite' });
+      if (req === 'granted') restoredCount++;
+    }
+    if (attachmentDirHandle && (await attachmentDirHandle.queryPermission({ mode: 'readwrite' })) !== 'granted') {
+      const req = await attachmentDirHandle.requestPermission({ mode: 'readwrite' });
+      if (req === 'granted') restoredCount++;
+    }
+    
+    if (restoredCount > 0) {
+      toast('权限恢复成功');
+      document.getElementById('permissionBanner').style.display = 'none';
+      isPermLost = false;
+      if (ui.currentView === 'attachments') loadAttachments();
+      startAutoBackup();
+    } else {
+      toast('未恢复权限，可能是被浏览器拦截，请重新在设置中选择文件夹', 'error');
+    }
+  } catch (e) {
+    console.error('恢复权限失败', e);
+    toast('恢复权限失败，请重新在设置中选择文件夹', 'error');
+  }
+}
+
+/* ===================================================================
+   业务逻辑
+   =================================================================== */
+function currentTable(){ return S.tables.find(t => t.id === ui.tableId) || S.tables[0] || null; }
+function catName(t, id){ if(!t || !t.categories) return ''; const c = t.categories.find(c => c.id === id); return c ? c.name : ''; }
+function attCatName(id){ const c = S.attCategories.find(c => c.id === id); return c ? c.name : ''; }
+function nameField(t){ return t.fields.find(f => f.required) || t.fields[0]; }
+function categoryField(t){ return t.fields.find(f => f.type === 'category'); }
+function catUsage(t, cid){ 
+  let n = 0; 
+  const catField = categoryField(t);
+  if (catField) t.records.forEach(r => { if (r[catField.id] === cid) n++; }); 
+  return n; 
+}
+
+function applyTheme(){ 
+  document.documentElement.setAttribute('data-theme', S.settings.theme); 
+  document.body.style.fontFamily = S.settings.fontFamily || '-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif';
+  
+  if (S.settings.accentColor) {
+    const hex = S.settings.accentColor;
+    const r = parseInt(hex.slice(1, 3), 16) || 79;
+    const g = parseInt(hex.slice(3, 5), 16) || 124;
+    const b = parseInt(hex.slice(5, 7), 16) || 255;
+    document.documentElement.style.setProperty('--accent', hex);
+    document.documentElement.style.setProperty('--accent-soft', `rgba(${r},${g},${b},0.12)`);
+  }
+
+  const pa = (typeof S.settings.panelAlpha === 'number') ? S.settings.panelAlpha : 0.75;
+  const psa = (typeof S.settings.panelSolidAlpha === 'number') ? S.settings.panelSolidAlpha : 1;
+  document.documentElement.style.setProperty('--panel-alpha', String(pa));
+  document.documentElement.style.setProperty('--panel-solid-alpha', String(psa));
+}
+
+function applyBg(){
+  const layer = document.getElementById('bgLayer'); 
+  const s = S.settings;
+  const t = currentTable();
+  
+  let url = '';
+  if (t && t.customBg) {
+    url = t.customBg;
+  } else {
+    if (s.bgType === 'url') url = (s.bgUrl || '').trim();
+    else if (s.bgType === 'local') url = s.bgImage || '';
+  }
+
+  if (!url) { layer.style.display = 'none'; return; }
+  layer.style.display = 'block'; 
+  layer.style.backgroundImage = `url("${String(url).replace(/"/g, '%22')}")`;
+  layer.style.opacity = String(s.bgOpacity); 
+  layer.style.filter = s.bgBlur ? `blur(${s.bgBlur}px)` : 'none';
+}
+
+/* ---------------- 视图与标签 ---------------- */
+function renderTabs(){ 
+  const t = currentTable();
+  document.getElementById('currentTableName').textContent = t ? t.name : '未命名表';
+  document.getElementById('btnViewRepo').classList.toggle('active', ui.currentView === 'attachments');
+}
+
+function renderView() {
+  renderTabs();
+  applyBg();
+  const tableActions = document.getElementById('tableActions');
+  const sidebar = document.getElementById('sidebar');
+  const toolbar = document.getElementById('toolbar');
+  const tableWrap = document.getElementById('tableWrap');
+  const pagination = document.getElementById('pagination');
+
+  if (ui.currentView === 'attachments') {
+    tableActions.style.display = 'none';
+    renderAttachmentsSidebar();
+    renderAttachmentsView();
+  } else {
+    tableActions.style.display = 'flex';
+    renderSidebar();
+    renderToolbar();
+    renderTable();
+  }
+}
+
+/* ---------------- 表切换 ---------------- */
+function openTableSearch(anchorEl) {
+  const popover = document.getElementById('tableSearchPopover');
+  const listEl  = document.getElementById('tspList');
+  const searchEl = document.getElementById('tspSearchInput');
+
+  const appEl  = document.getElementById('app');
+  const appRect = appEl.getBoundingClientRect();
+  const rect    = anchorEl.getBoundingClientRect();
+
+  popover.style.top  = (rect.bottom - appRect.top + 8) + 'px';
+  let left = rect.left - appRect.left;
+  if (left + 250 > appRect.width) left = Math.max(8, appRect.width - 250 - 8);
+  popover.style.left = left + 'px';
+  popover.classList.add('show');
+
+  const closePopover = () => {
+    popover.classList.remove('show');
+    if (currentTspOutsideClick) {
+      document.removeEventListener('click', currentTspOutsideClick);
+      currentTspOutsideClick = null;
+    }
+  };
+
+  const outsideClick = (e) => {
+    if (!popover.contains(e.target) && !anchorEl.contains(e.target)) closePopover();
+  };
+
+  const renderList = (kw = '') => {
+    const q = String(kw).trim().toLowerCase();
+    const filtered = S.tables.filter(t => String(t.name).toLowerCase().includes(q));
+    
+    if (!filtered.length) {
+      listEl.innerHTML = `<div class="tsp-empty">没有找到匹配的表</div>`;
+      return;
+    }
+    listEl.innerHTML = filtered.map(t => `
+      <div class="tsp-item ${t.id === ui.tableId ? 'active' : ''}" data-id="${t.id}">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(t.name)}</span>
+        <span style="font-size:11px;opacity:.6;flex-shrink:0;margin-left:8px;">${t.records.length} 条</span>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.tsp-item').forEach(item => {
+      item.onclick = () => {
+        switchTable(item.dataset.id);
+        closePopover();
+      };
+    });
+  };
+
+  if (searchEl) {
+    searchEl.value = '';
+    searchEl.oninput = () => renderList(searchEl.value);
+    setTimeout(() => searchEl.focus(), 50);
+  }
+  
+  renderList();
+
+  if (currentTspOutsideClick) document.removeEventListener('click', currentTspOutsideClick);
+  currentTspOutsideClick = outsideClick;
+  setTimeout(() => {
+    document.removeEventListener('click', outsideClick);
+    document.addEventListener('click', outsideClick);
+  }, 10);
+}
+
+/* ---------------- 附件仓库视图 ---------------- */
+async function loadAttachments() {
+  if (!attachmentDirHandle) {
+    ui.attFiles = [];
+    renderAttachmentsView();
+    return;
+  }
+  
+  let perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
+  if (perm !== 'granted') {
+    perm = await attachmentDirHandle.requestPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') {
+      isPermLost = true;
+      document.getElementById('permissionBanner').style.display = 'flex';
+      renderAttachmentsView();
+      return;
+    } else {
+      isPermLost = false;
+      document.getElementById('permissionBanner').style.display = 'none';
+    }
+  }
+  
+  ui.attLoading = true;
+  renderAttachmentsView();
+  
+  try {
+    const files = [];
+    for await (const entry of attachmentDirHandle.values()) {
+      if (entry.kind === 'file') {
+        const file = await entry.getFile();
+        files.push({ name: file.name, size: file.size, type: file.type || entry.name.split('.').pop().toLowerCase(), handle: entry });
+      }
+    }
+    ui.attFiles = files.sort((a, b) => a.name.localeCompare(b.name));
+  } catch (err) {
+    console.error(err);
+    toast('读取附件文件夹失败', 'error');
+    ui.attFiles = [];
+  }
+  
+  ui.attLoading = false;
+  renderAttachmentsView();
+}
+
+function renderAttachmentsSidebar() {
+  const el = document.getElementById('sidebar');
+  
+  const counts = {};
+  ui.attFiles.forEach(f => {
+    const tags = S.attTags[f.name] || [];
+    tags.forEach(tid => counts[tid] = (counts[tid] || 0) + 1);
+  });
+
+  let catHTML = `
+    <div class="side-title">附件分类</div>
+    <div class="cat-list">
+      <div class="cat-item ${ui.attCategory === 'all' ? 'active' : ''}" data-att-cat="all">
+        <span>📁 全部附件</span>
+        <span class="cat-num">${ui.attFiles.length}</span>
+      </div>
+      ${S.attCategories.map(c => `
+        <div class="cat-item ${ui.attCategory === c.id ? 'active' : ''}" data-att-cat="${c.id}">
+          <span>🏷️ ${esc(c.name)}</span>
+          <span class="cat-num">${counts[c.id] || 0}</span>
+        </div>
+      `).join('')}
+    </div>
+    
+    <div class="side-title" style="margin-top:10px;">系统分类</div>
+    <div class="cat-list">
+      <div class="cat-item ${ui.attCategory === 'image' ? 'active' : ''}" data-att-cat="image"><span>🖼️ 图片</span></div>
+      <div class="cat-item ${ui.attCategory === 'video' ? 'active' : ''}" data-att-cat="video"><span>🎬 视频</span></div>
+      <div class="cat-item ${ui.attCategory === 'doc' ? 'active' : ''}" data-att-cat="doc"><span>📑 文档</span></div>
+      <div class="cat-item ${ui.attCategory === 'other' ? 'active' : ''}" data-att-cat="other"><span>📦 其他</span></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn btn-block" data-manage-att-cat>⚙️ 管理自定义分类</button>
+  `;
+  el.innerHTML = catHTML;
+}
+
+function renderAttachmentsView() {
+  const toolbar = document.getElementById('toolbar');
+  const tableWrap = document.getElementById('tableWrap');
+  const pagination = document.getElementById('pagination');
+  pagination.innerHTML = '';
+
+  if (!attachmentDirHandle) {
+    toolbar.innerHTML = '';
+    tableWrap.innerHTML = `<div class="empty"><p>尚未设置附件仓库文件夹，请在设置中指定</p><button class="btn btn-primary" id="emptyGoSettings">去设置</button></div>`;
+    document.getElementById('emptyGoSettings').onclick = openSettings;
+    return;
+  }
+
+  if (isPermLost) {
+    toolbar.innerHTML = '';
+    tableWrap.innerHTML = `<div class="empty"><p style="color:var(--danger)">⚠️ 文件夹访问权限已失效</p><p>浏览器安全限制导致重启后权限丢失。</p><button class="btn btn-primary" id="btnRecoverInEmpty" style="margin-top:10px;">🔓 点击恢复文件夹权限</button></div>`;
+    document.getElementById('btnRecoverInEmpty').onclick = restorePermissions;
+    return;
+  }
+
+  let batchBtnHTML = '';
+  if (ui.attSelectedFiles.size > 0) {
+    batchBtnHTML = `<button class="btn btn-primary" id="batchTagBtn">给选中项(${ui.attSelectedFiles.size})打标签</button>`;
+  }
+
+  toolbar.innerHTML = `
+    <div class="tb-row">
+      <div class="tb-group">
+        <input id="attSearch" class="input search" type="text" placeholder="搜索文件名..." value="${esc(ui.attSearch)}">
+        <button class="btn" id="attRefreshBtn">🔄 刷新列表</button>
+        <button class="btn btn-primary" id="attImportBtn">＋ 导入文件</button>
+      </div>
+      <div class="tb-group">
+        ${batchBtnHTML}
+      </div>
+    </div>
+  `;
+
+  const searchInput = toolbar.querySelector('#attSearch');
+  searchInput.oninput = (e) => { ui.attSearch = e.target.value; updateAttGrid(); };
+  toolbar.querySelector('#attRefreshBtn').onclick = loadAttachments;
+  toolbar.querySelector('#attImportBtn').onclick = () => {
+    const inp = document.getElementById('attImportInput');
+    inp.value = '';
+    inp.click();
+  };
+  
+  const batchTagBtn = toolbar.querySelector('#batchTagBtn');
+  if (batchTagBtn) batchTagBtn.onclick = () => openAttTagDialog();
+
+  if (ui.attLoading) {
+    tableWrap.innerHTML = `<div class="empty"><p>正在读取文件夹...</p></div>`;
+    return;
+  }
+
+  const updateAttGrid = () => {
+    let filtered = ui.attFiles;
+    
+    if (ui.attCategory === 'image' || ui.attCategory === 'video' || ui.attCategory === 'doc' || ui.attCategory === 'other') {
+      filtered = filtered.filter(f => getFileCategory(f.name) === ui.attCategory);
+    } else if (ui.attCategory !== 'all') {
+      filtered = filtered.filter(f => {
+        const tags = S.attTags[f.name] || [];
+        return tags.includes(ui.attCategory);
+      });
+    }
+    
+    if (ui.attSearch) {
+      const kw = ui.attSearch.toLowerCase();
+      filtered = filtered.filter(f => f.name.toLowerCase().includes(kw));
+    }
+
+    if (!filtered.length) {
+      tableWrap.innerHTML = `<div class="empty"><p>没有找到匹配的文件</p></div>`;
+      return;
+    }
+
+    let html = `<div class="attachment-grid">`;
+    filtered.forEach(f => {
+      const cat = getFileCategory(f.name);
+      let icon = '📄';
+      if (cat === 'image') icon = '🖼️';
+      else if (cat === 'video') icon = '🎬';
+      else if (cat === 'doc') icon = '📑';
+      else if (f.name.endsWith('.zip') || f.name.endsWith('.rar') || f.name.endsWith('.7z')) icon = '📦';
+
+      const isSelected = ui.attSelectedFiles.has(f.name);
+      const tags = (S.attTags[f.name] || []).map(tid => `<span class="att-tag">${esc(attCatName(tid))}</span>`).join('');
+
+      html += `
+        <div class="attachment-card ${isSelected ? 'selected' : ''}" data-name="${esc(f.name)}">
+          <input type="checkbox" class="att-checkbox" data-cb-name="${esc(f.name)}" ${isSelected ? 'checked' : ''}>
+          <div class="attachment-icon">${icon}</div>
+          <div class="attachment-name" title="${esc(f.name)}">${esc(f.name)}</div>
+          <div class="attachment-meta">${formatSize(f.size)}</div>
+          <div class="att-tags">${tags || '<span class="att-tag" style="opacity:0.5">未分类</span>'}</div>
+          <div class="att-actions">
+            <button class="mini-btn" data-act="open">打开</button>
+            <button class="mini-btn danger" data-act="delete">删除</button>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    tableWrap.innerHTML = html;
+
+    tableWrap.querySelectorAll('.attachment-card').forEach(card => {
+      const name = card.dataset.name;
+      
+      card.querySelector('.att-checkbox').onchange = (e) => {
+        e.stopPropagation();
+        if (e.target.checked) ui.attSelectedFiles.add(name);
+        else ui.attSelectedFiles.delete(name);
+        card.classList.toggle('selected', e.target.checked);
+        renderAttachmentsView();
+      };
+
+      card.onclick = (e) => {
+        if (e.target.closest('.att-checkbox') || e.target.closest('button')) return;
+        previewAttachment(name);
+      };
+
+      card.querySelector('[data-act="open"]').onclick = (e) => { e.stopPropagation(); openAttachmentWithSystem(name); };
+      card.querySelector('[data-act="delete"]').onclick = (e) => { e.stopPropagation(); deleteAttachmentFile(name); };
+    });
+  };
+
+  updateAttGrid();
+}
+
+/* ---------------- 附件操作 ---------------- */
+function getFileCategory(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'image';
+  if (['mp4','avi','mov','wmv','flv','mkv','webm'].includes(ext)) return 'video';
+  if (['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','md','csv'].includes(ext)) return 'doc';
+  return 'other';
+}
+
+async function previewAttachment(filename) {
+  if (!attachmentDirHandle) return;
+  try {
+    const perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') { checkPermissionStatus(); return; }
+    
+    const fileHandle = await attachmentDirHandle.getFileHandle(filename);
+    const file = await fileHandle.getFile();
+    const url = URL.createObjectURL(file);
+    const cat = getFileCategory(filename);
+
+    let bodyHTML = '';
+    if (cat === 'image') {
+      bodyHTML = `<div style="text-align:center; background:rgba(0,0,0,.05); padding:10px; border-radius:8px;"><img src="${url}" style="max-width:100%; max-height:65vh; object-fit:contain;"></div>`;
+    } else if (cat === 'video') {
+      bodyHTML = `<div style="text-align:center; background:rgba(0,0,0,.05); padding:10px; border-radius:8px;"><video src="${url}" controls style="max-width:100%; max-height:65vh; outline:none;"></video></div>`;
+    } else if (filename.toLowerCase().endsWith('.pdf')) {
+      bodyHTML = `<iframe src="${url}" style="width:100%; height:65vh; border:none; border-radius:8px;"></iframe>`;
+    } else if (filename.toLowerCase().match(/\.(txt|md|csv|json|xml)$/)) {
+      const text = await file.text();
+      bodyHTML = `<pre style="width:100%; height:65vh; overflow:auto; background:var(--bg); padding:12px; border-radius:8px; border:1px solid var(--border); font-family:monospace; font-size:13px; white-space:pre-wrap;">${esc(text)}</pre>`;
+    } else {
+      bodyHTML = `<div class="empty"><p>该文件类型暂不支持直接预览，你可以点击下方按钮下载或使用系统默认程序打开。</p></div>`;
+    }
+
+    openModal({
+      title: `预览: ${filename}`,
+      width: '800px',
+      body: bodyHTML,
+      footer: `<button class="btn" data-cancel>关闭</button><button class="btn btn-primary" id="downloadFileBtn">下载 / 系统打开</button>`,
+      onMount(el, closeFn) {
+        el.querySelector('[data-cancel]').onclick = () => { URL.revokeObjectURL(url); closeFn(); };
+        el.querySelector('#downloadFileBtn').onclick = () => {
+          const a = document.createElement('a');
+          a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+          setTimeout(() => a.remove(), 100);
+        };
+      },
+      onClose() { URL.revokeObjectURL(url); }
+    });
+  } catch (err) {
+    console.error(err);
+    toast('无法读取文件，可能已被移动或删除', 'error');
+  }
+}
+
+async function openAttachmentWithSystem(filename) {
+  if (!attachmentDirHandle) return;
+  try {
+    const perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') { checkPermissionStatus(); return; }
+
+    const fileHandle = await attachmentDirHandle.getFileHandle(filename);
+    const file = await fileHandle.getFile();
+    const url = URL.createObjectURL(file);
+    
+    window.open(url, '_blank');
+    setTimeout(() => { URL.revokeObjectURL(url); }, 10000);
+  } catch (err) {
+    console.error(err);
+    toast('无法打开文件，可能已被移动或删除', 'error');
+  }
+}
+
+async function deleteAttachmentFile(filename) {
+  if (!attachmentDirHandle) return;
+  
+  if (!await confirmDialog({ title: '删除文件', message: `确定要删除附件「<b>${esc(filename)}</b>」吗？`, danger: true, okText: '继续' })) return;
+  if (!await confirmDialog({ title: '彻底删除', message: '此操作将<b>直接从硬盘中删除该文件</b>，且无法恢复，请再次确认！', danger: true, okText: '确认删除' })) return;
+
+  try {
+    const perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') { checkPermissionStatus(); return; }
+
+    await attachmentDirHandle.removeEntry(filename);
+    
+    if (S.attTags[filename]) { delete S.attTags[filename]; save(); }
+    ui.attSelectedFiles.delete(filename);
+    toast('文件已彻底删除');
+    loadAttachments();
+  } catch (err) {
+    console.error(err);
+    toast('删除文件失败', 'error');
+  }
+}
+
+function openAttTagDialog() {
+  const files = Array.from(ui.attSelectedFiles);
+  if (files.length === 0) return;
+  
+  const body = document.createElement('div'); body.className = 'form';
+  let html = `<div class="dialog-msg">正在给选中的 <b>${files.length}</b> 个文件设置分类。勾选代表加入，取消勾选代表移出。</div>`;
+  
+  S.attCategories.forEach(c => {
+    const allHave = files.every(f => (S.attTags[f] || []).includes(c.id));
+    const someHave = files.some(f => (S.attTags[f] || []).includes(c.id));
+    const checked = allHave ? 'checked' : '';
+    const indeterminate = (!allHave && someHave) ? 'data-indeterminate="true"' : '';
+    html += `<label class="check-item" style="margin-top:8px;"><input type="checkbox" class="tag-cb" value="${c.id}" ${checked} ${indeterminate}><span>${esc(c.name)}</span></label>`;
+  });
+  
+  if (S.attCategories.length === 0) html += `<div style="color:var(--muted);font-size:13px;margin-top:8px;">还没有自定义分类，请先在左侧边栏管理分类。</div>`;
+  body.innerHTML = html;
+
+  openModal({
+    title: '设置分类标签', body, width: '400px',
+    footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-save>确定</button>`,
+    onMount(el, closeFn) {
+      el.querySelectorAll('input[data-indeterminate="true"]').forEach(cb => cb.indeterminate = true);
+      el.querySelector('[data-cancel]').onclick = closeFn;
+      el.querySelector('[data-save]').onclick = () => {
+        const selectedCats = [];
+        el.querySelectorAll('.tag-cb:checked').forEach(cb => selectedCats.push(cb.value));
+        files.forEach(f => {
+          if (!S.attTags[f]) S.attTags[f] = [];
+          S.attTags[f] = selectedCats.slice(); 
+        });
+        save();
+        ui.attSelectedFiles.clear();
+        closeFn();
+        renderAttachmentsView();
+        toast('标签已更新');
+      };
+    }
+  });
+}
+
+function openManageAttCategories() {
+  const body = document.createElement('div');
+  const listEl = document.createElement('div');
+  const addRow = document.createElement('div');
+  
+  addRow.innerHTML = `<div class="cat-add-row"><input class="input" id="newAttCatName" placeholder="输入新分类名称"><button class="btn btn-primary" id="addAttCatBtn">添加</button></div>`;
+  body.appendChild(listEl); body.appendChild(addRow);
+
+  const renderList = () => {
+    listEl.innerHTML = S.attCategories.length ? S.attCategories.map(c => `
+      <div class="cat-row" data-cid="${c.id}">
+        <span class="cat-row-name">${esc(c.name)}</span>
+        <button class="mini-btn" data-rename>改名</button>
+        <button class="mini-btn danger" data-del>删除</button>
+      </div>
+    `).join('') : `<div style="color:var(--muted);font-size:13px;padding:8px 0">暂无分类</div>`;
+  };
+  renderList();
+
+  openModal({
+    title: '管理附件自定义分类', body, width: '480px', footer: `<button class="btn" data-cancel>关闭</button>`,
+    onMount(el, closeFn) {
+      el.querySelector('[data-cancel]').onclick = closeFn;
+      
+      el.querySelector('#addAttCatBtn').onclick = () => {
+        const inp = el.querySelector('#newAttCatName');
+        const name = inp.value.trim();
+        if (!name) { toast('请输入分类名称', 'error'); return; }
+        if (S.attCategories.some(c => c.name === name)) { toast('分类已存在', 'error'); return; }
+        S.attCategories.push({ id: uid(), name });
+        save();
+        inp.value = '';
+        renderList();
+        renderAttachmentsSidebar();
+        toast('已添加');
+      };
+
+      listEl.addEventListener('click', async e => {
+        const row = e.target.closest('.cat-row'); if (!row) return;
+        const cid = row.dataset.cid;
+        const cat = S.attCategories.find(c => c.id === cid);
+        if (!cat) return;
+
+        if (e.target.closest('[data-del]')) {
+          const ok = await confirmDialog({ title: '删除分类', message: `确定删除附件分类「<b>${esc(cat.name)}</b>」吗？`, danger: true, okText: '删除' });
+          if (!ok) return;
+          
+          S.attCategories = S.attCategories.filter(c => c.id !== cid);
+          for (let f in S.attTags) {
+            S.attTags[f] = S.attTags[f].filter(t => t !== cid);
+            if (S.attTags[f].length === 0) delete S.attTags[f];
+          }
+          if (ui.attCategory === cid) ui.attCategory = 'all';
+          
+          save();
+          renderList();
+          renderAttachmentsSidebar();
+          renderAttachmentsView();
+          toast('已删除');
+          return;
+        }
+
+        if (e.target.closest('[data-rename]')) {
+          const nameEl = row.querySelector('.cat-row-name');
+          const old = cat.name;
+          const input = document.createElement('input');
+          input.className = 'input'; input.value = old; input.style.width = '140px';
+          nameEl.replaceWith(input); input.focus(); input.select();
+
+          const commit = () => {
+            const v = input.value.trim();
+            if (v && v !== old) {
+              if (S.attCategories.some(c => c.name === v && c.id !== cid)) toast('分类名已存在', 'error');
+              else { cat.name = v; save(); renderAttachmentsSidebar(); renderAttachmentsView(); }
+            }
+            renderList();
+          };
+          input.addEventListener('blur', commit);
+          input.addEventListener('keydown', ev => {
+            if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+            if (ev.key === 'Escape') { input.value = old; input.blur(); }
+          });
+        }
+      });
+    }
+  });
+}
+
+/* ---------------- 表格视图 ---------------- */
+function renderSidebar(){
+  const el = document.getElementById('sidebar'); const t = currentTable(); if (!t) { el.innerHTML = ''; return; }
+  const catField = categoryField(t); let catHTML = '';
+  if (catField) {
+    const counts = {}; t.records.forEach(r => { const k = r[catField.id] || ''; counts[k] = (counts[k] || 0) + 1; });
+    catHTML = `<div class="side-title">分类快捷筛选</div><div class="cat-list"><div class="cat-item ${!uiState.categoryId?.[t.id] ? 'active' : ''}" data-cat=""><span>全部分类</span><span class="cat-num">${t.records.length}</span></div>${t.categories.map(c => `<div class="cat-item ${uiState.categoryId?.[t.id] === c.id ? 'active' : ''}" data-cat="${c.id}"><span>${esc(c.name)}</span><span class="cat-num">${counts[c.id] || 0}</span></div>`).join('')}<div class="cat-item ${uiState.categoryId?.[t.id] === '__none__' ? 'active' : ''}" data-cat="__none__"><span>未分类</span><span class="cat-num">${counts[''] || 0}</span></div></div>`;
+  } else { catHTML = `<div class="side-title">分类快捷筛选</div><div style="font-size:12px;color:var(--muted);padding:8px 4px;line-height:1.7">此表未启用「分类」字段<br>可在「表设置」中添加</div>`; }
+  el.innerHTML = `${catHTML}<div style="flex:1"></div><button class="btn btn-block" data-managecat>⚙️ 管理分类</button><div class="side-foot">数据仅保存在本机浏览器</div>`;
+}
+
+function renderToolbar(){
+  const el = document.getElementById('toolbar'); const t = currentTable(); if (!t) { el.innerHTML = ''; return; }
+  
+  const currentSearch = uiState.search[t.id] || '';
+  const currentFilters = uiState.filters[t.id] || [];
+
+  let filterTagsHTML = currentFilters.map((f, idx) => {
+    const field = t.fields.find(x => x.id === f.fieldId);
+    const fieldLabel = field ? field.label : '未知';
+    let displayVals = f.values.map(v => field && field.type === 'category' ? catName(t, v) : v).join(', ');
+    return `<div class="filter-tag"><span>${esc(fieldLabel)} 包含 ${esc(displayVals)}</span><button data-del-filter="${idx}">×</button></div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="tb-row">
+      <div class="tb-group">
+        <input id="searchInput" class="input search" type="text" placeholder="搜索当前表..." value="${esc(currentSearch)}">
+        <button class="btn btn-ghost" id="addFilterBtn" style="position:relative;">＋ 添加筛选条件</button>
+        <button class="btn btn-ghost" id="resetFilter">重置所有</button>
+      </div>
+      <div class="tb-group">
+        <button class="btn btn-primary" id="addRecord">＋ 新增记录</button>
+        ${ui.selectedIds.size > 0 ? `<button class="btn btn-danger" id="batchDelBtn">删除选中(${ui.selectedIds.size})</button>` : ''}
+      </div>
+    </div>
+    ${filterTagsHTML ? `<div class="tb-row" style="padding-top:4px;">${filterTagsHTML}</div>` : ''}
+  `;
+  updateUndoRedoBtns();
+}
+
+function filteredRecords(t){
+  let list = t.records.slice(); 
+  const kw = (uiState.search[t.id] || '').trim().toLowerCase();
+  
+  if (kw) { 
+    list = list.filter(r => t.fields.some(f => { 
+      if (f.type === 'image') return false; 
+      const v = f.type === 'category' ? catName(t, r[f.id]) : String(r[f.id] == null ? '' : r[f.id]); 
+      return v.toLowerCase().includes(kw); 
+    })); 
+  }
+  
+  const catField = categoryField(t);
+  const qCat = (uiState.categoryId || {})[t.id];
+  if (catField && qCat) { 
+    if (qCat === '__none__') list = list.filter(r => !r[catField.id]); 
+    else list = list.filter(r => r[catField.id] === qCat); 
+  }
+
+  const filters = uiState.filters[t.id] || [];
+  filters.forEach(f => {
+    const field = t.fields.find(x => x.id === f.fieldId);
+    if (!field) return;
+    list = list.filter(r => {
+      let v = r[f.fieldId] || '';
+      if (field.type === 'category') v = catName(t, v);
+      v = String(v).toLowerCase();
+      return f.values.some(val => v.includes(String(val).toLowerCase()));
+    });
+  });
+
+  list.sort((a, b) => {
+    const nameF = nameField(t);
+    const ka = a[nameF.id] || '', kb = b[nameF.id] || '';
+    return ka.localeCompare(kb);
+  });
+  return list;
+}
+
+function cellHTML(f, r){
+  const v = r[f.id];
+  const t = currentTable();
+  switch (f.type) {
+    case 'textarea': return `<td><div class="cell-note" title="${esc(v)}">${esc(v || '')}</div></td>`;
+    case 'category': { const c = t.categories.find(c => c.id === v); return `<td><span class="tag ${c ? '' : 'tag-muted'}">${c ? esc(c.name) : '未分类'}</span></td>`; }
+    case 'select': return `<td>${v ? `<span class="tag">${esc(v)}</span>` : ''}</td>`;
+    case 'date': return `<td class="cell-date">${esc(v || '')}</td>`;
+    case 'datetime-local': return `<td class="cell-date">${esc(fmtDateTime(v))}</td>`;
+    case 'image': return `<td class="cell-img">${v ? `<img class="thumb" src="${esc(v)}" loading="lazy" alt="">` : ''}</td>`;
+    case 'number': return `<td class="cell-date">${esc(v == null ? '' : v)}</td>`;
+    case 'file': return `<td>${v ? `<a class="file-link" data-file="${esc(v)}">📎 ${esc(v)}</a>` : ''}</td>`;
+    default: 
+      if (f.required) return `<td><div class="cell-name" title="${esc(v)}">${esc(v || '')}</div></td>`;
+      return `<td><div class="cell-text" title="${esc(v)}">${esc(v || '')}</div></td>`;
+  }
+}
+
+function rowOps(t, r){
+  let html = `<button class="mini-btn" data-act="edit" data-id="${r.id}">编辑</button>`;
+  
+  const groups = S.settings.relationGroups || [];
+  const targetTableIds = new Set();
+  groups.forEach(g => {
+    if (g.tableIds.includes(t.id)) {
+      g.tableIds.forEach(id => {
+        if (id !== t.id) targetTableIds.add(id);
+      });
+    }
+  });
+
+  targetTableIds.forEach(targetId => {
+    const targetTable = S.tables.find(x => x.id === targetId);
+    if (targetTable) {
+      html += `<button class="mini-btn" data-act="flow" data-to="${targetId}" data-id="${r.id}">→ ${esc(targetTable.name)}</button>`;
+    }
+  });
+
+  return html + `<button class="mini-btn danger" data-act="del" data-id="${r.id}">删除</button>`;
+}
+
+function renderTable(){
+  const wrap = document.getElementById('tableWrap'); const t = currentTable(); if (!t) { wrap.innerHTML = ''; return; }
+  const allFiltered = filteredRecords(t); 
+  const total = allFiltered.length;
+  const totalPages = Math.ceil(total / ui.pageSize) || 1;
+  if (ui.page > totalPages) ui.page = totalPages;
+  const start = (ui.page - 1) * ui.pageSize;
+  const recs = allFiltered.slice(start, start + ui.pageSize);
+
+  const cols = t.fields;
+  
+  const validIds = new Set(allFiltered.map(r => r.id));
+  ui.selectedIds.forEach(id => { if (!validIds.has(id)) ui.selectedIds.delete(id); });
+  const allSelected = recs.length > 0 && recs.every(r => ui.selectedIds.has(r.id));
+
+  if (!allFiltered.length) { 
+    wrap.innerHTML = `<div class="empty"><p>${t.records.length ? '没有符合条件的记录' : '这张表还没有记录，先加一条吧'}</p><button class="btn btn-primary" data-empty-add>＋ 新增记录</button></div>`; 
+    renderPagination(0);
+    return; 
+  }
+  
+  const thead = `<tr>
+    <th class="cb-col"><input type="checkbox" id="selectAllCb" ${allSelected ? 'checked' : ''}></th>
+    ${cols.map(f => `<th>${esc(f.label)}</th>`).join('')}
+    <th class="op-col">操作</th>
+  </tr>`;
+  
+  const tbody = recs.map(r => {
+    const isSel = ui.selectedIds.has(r.id);
+    return `<tr data-id="${r.id}" class="${isSel ? 'selected' : ''}">
+      <td class="cb-col"><input type="checkbox" class="row-cb" data-id="${r.id}" ${isSel ? 'checked' : ''}></td>
+      ${cols.map(f => cellHTML(f, r)).join('')}
+      <td class="op-col">${rowOps(t, r)}</td>
+    </tr>`;
+  }).join('');
+  
+  wrap.innerHTML = `<table class="data-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+  renderPagination(total);
+}
+
+function renderPagination(total) {
+  const pag = document.getElementById('pagination');
+  const totalPages = Math.ceil(total / ui.pageSize) || 1;
+  pag.innerHTML = `
+    <span>共 <b>${total}</b> 条</span>
+    <span>每页 <input type="number" id="pageSizeInput" value="${ui.pageSize}" min="1" max="1000"> 条</span>
+    <button id="prevPage" ${ui.page <= 1 ? 'disabled' : ''}>上一页</button>
+    <span>${ui.page} / ${totalPages}</span>
+    <button id="nextPage" ${ui.page >= totalPages ? 'disabled' : ''}>下一页</button>
+  `;
+  pag.querySelector('#pageSizeInput').onchange = (e) => {
+    let val = parseInt(e.target.value);
+    if (isNaN(val) || val < 1) val = 20;
+    if (val > 1000) val = 1000;
+    ui.pageSize = val;
+    ui.page = 1;
+    renderTable();
+  };
+  pag.querySelector('#prevPage').onclick = () => { if (ui.page > 1) { ui.page--; renderTable(); } };
+  pag.querySelector('#nextPage').onclick = () => { if (ui.page < totalPages) { ui.page++; renderTable(); } };
+}
+
+function switchTable(id){ 
+  ui.currentView = 'table';
+  ui.tableId = id; ui.selectedIds.clear(); ui.page = 1;
+  try { localStorage.setItem('dfy_last_table', id); } catch(e){}
+  renderView(); 
+}
+
+function switchView(view) {
+  ui.currentView = view;
+  ui.attSelectedFiles.clear();
+  renderView();
+  if (view === 'attachments') loadAttachments();
+}
+
+/* ---------------- 表单操作 ---------------- */
+function fieldInputHTML(t, f, val){
+  const v = esc(val == null ? '' : val);
+  switch (f.type) {
+    case 'textarea': return `<textarea class="input" data-fid="${f.id}" rows="3" placeholder="补充说明">${v}</textarea>`;
+    case 'number': return `<input class="input" type="number" data-fid="${f.id}" value="${v}">`;
+    case 'select': return `<select class="input" data-fid="${f.id}"><option value="">请选择</option>${(f.options || []).map(o => `<option value="${esc(o)}" ${val === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>`;
+    case 'category': return `<select class="input" data-fid="${f.id}"><option value="">未分类</option>${t.categories.map(c => `<option value="${c.id}" ${val === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>`;
+    case 'date': return `<input class="input" type="date" data-fid="${f.id}" value="${v}">`;
+    case 'datetime-local': return `<input class="input" type="datetime-local" data-fid="${f.id}" value="${v}">`;
+    case 'image': return `<div class="img-field" data-fid="${f.id}"><input type="hidden" class="img-value" value="${v}"><input type="file" accept="image/*" class="img-file" hidden><div class="img-preview">${val ? `<img src="${esc(val)}" alt="图片">` : '<span class="img-empty">暂无图片</span>'}</div><div class="img-actions"><button type="button" class="btn img-pick">选择图片</button><button type="button" class="btn img-clear" ${val ? '' : 'hidden'}>清除</button></div></div>`;
+    case 'file': return `<div class="file-field" data-fid="${f.id}"><input type="hidden" class="file-value" value="${v}"><input type="file" class="file-input" hidden><div class="img-actions" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><button type="button" class="btn file-pick" style="border-color:var(--accent);color:var(--accent);">选择文件上传</button><span class="file-name" style="font-size:13px;color:var(--text);word-break:break-all;">${val ? '📎 ' + esc(val) : '未选择文件'}</span><button type="button" class="btn file-clear" ${val ? '' : 'hidden'} style="margin-left:auto;">清除</button></div></div>`;
+    default: return `<input class="input" type="text" data-fid="${f.id}" value="${v}" placeholder="请输入${esc(f.label)}">`;
+  }
+}
+function bindImageFields(container){
+  container.querySelectorAll('.img-field').forEach(wrap => {
+    const hidden = wrap.querySelector('.img-value'), fileInp = wrap.querySelector('.img-file'), preview = wrap.querySelector('.img-preview'), pick = wrap.querySelector('.img-pick'), clear = wrap.querySelector('.img-clear');
+    pick.onclick = () => { fileInp.value = ''; fileInp.click(); };
+    fileInp.onchange = async () => {
+      const file = fileInp.files[0]; if (!file) return;
+      try { const dataUrl = await compressImage(file, 600, 0.55); hidden.value = dataUrl; preview.innerHTML = `<img src="${dataUrl}" alt="图片">`; clear.hidden = false; } catch (e) { toast('图片处理失败', 'error'); }
+    };
+    clear.onclick = () => { hidden.value = ''; preview.innerHTML = '<span class="img-empty">暂无图片</span>'; clear.hidden = true; };
+  });
+}
+function bindFileFields(container){
+  container.querySelectorAll('.file-field').forEach(wrap => {
+    const hidden = wrap.querySelector('.file-value'), fileInp = wrap.querySelector('.file-input'), nameEl = wrap.querySelector('.file-name'), pick = wrap.querySelector('.file-pick'), clear = wrap.querySelector('.file-clear');
+    
+    pick.onclick = async () => { 
+      if (!attachmentDirHandle) { toast('请先在设置 -> 附件仓库中指定一个文件夹', 'error'); return; }
+      const perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') { checkPermissionStatus(); return; }
+      fileInp.value = ''; fileInp.click(); 
+    };
+    
+    fileInp.onchange = async () => {
+      const file = fileInp.files[0]; if (!file) return;
+      try {
+        const perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
+        if (perm !== 'granted') { checkPermissionStatus(); return; }
+        
+        let fName = file.name;
+        let finalName = fName;
+        let idx = 1;
+        while (true) {
+          try {
+            await attachmentDirHandle.getFileHandle(finalName);
+            const extIdx = fName.lastIndexOf('.');
+            const base = extIdx > -1 ? fName.slice(0, extIdx) : fName;
+            const ext = extIdx > -1 ? fName.slice(extIdx) : '';
+            finalName = `${base}_${idx}${ext}`;
+            idx++;
+          } catch (e) { break; }
+        }
+
+        const newHandle = await attachmentDirHandle.getFileHandle(finalName, { create: true });
+        const writable = await newHandle.createWritable();
+        await writable.write(file);
+        await writable.close();
+
+        hidden.value = finalName;
+        nameEl.textContent = `📎 ${finalName}`;
+        clear.hidden = false;
+        toast('文件已存入仓库');
+      } catch (err) {
+        console.error(err);
+        toast('文件写入失败', 'error');
+      }
+    };
+    clear.onclick = () => { hidden.value = ''; nameEl.textContent = '未选择文件'; clear.hidden = true; };
+  });
+}
+
+function openRecordForm(table, record){
+  if (!table) return; const isEdit = !!record; const fields = table.fields;
+  const form = document.createElement('div'); form.className = 'form';
+  form.innerHTML = fields.map(f => `<div class="form-row"><label>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ''}</label>${fieldInputHTML(table, f, record ? record[f.id] : '')}</div>`).join('');
+  openModal({
+    title: isEdit ? '编辑记录' : '新增记录', body: form,
+    footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-save>保存</button>`,
+    onMount(el, closeFn){
+      bindImageFields(form);
+      bindFileFields(form);
+      el.querySelector('[data-cancel]').onclick = closeFn;
+      el.querySelector('[data-save]').onclick = () => {
+        const data = {};
+        fields.forEach(f => {
+          if (f.type === 'image') { const wrap = form.querySelector(`.img-field[data-fid="${f.id}"]`); data[f.id] = wrap ? wrap.querySelector('.img-value').value : ''; }
+          else if (f.type === 'file') { const wrap = form.querySelector(`.file-field[data-fid="${f.id}"]`); data[f.id] = wrap ? wrap.querySelector('.file-value').value : ''; }
+          else { const inp = form.querySelector(`[data-fid="${f.id}"]`); data[f.id] = inp ? (f.type === 'textarea' ? inp.value : inp.value.trim()) : ''; }
+        });
+        const reqField = fields.find(f => f.required); if (reqField && !data[reqField.id]) { toast(`「${reqField.label}」不能为空`, 'error'); return; }
+        
+        pushUndo(); 
+        if (isEdit) Object.assign(record, data, { updatedAt: Date.now() });
+        else table.records.push(Object.assign({ id: uid(), createdAt: Date.now(), updatedAt: Date.now() }, data));
+        save(); 
+        closeFn(); renderView(); toast(isEdit ? '已保存' : '已新增');
+      };
+    }
+  });
+}
+async function deleteRecord(t, rec){
+  const nf = nameField(t); const title = rec[nf.id] || '这条记录';
+  if (!await confirmDialog({ title: '删除记录', message: `确定要删除「<b>${esc(title)}</b>」吗？`, danger: true, okText: '继续' })) return;
+  if (!await confirmDialog({ title: '再次确认', message: '删除后不可恢复，请再次确认。', danger: true, okText: '确认删除' })) return;
+  
+  pushUndo(); 
+  t.records = t.records.filter(r => r.id !== rec.id); 
+  ui.selectedIds.delete(rec.id);
+  save(); renderView(); toast('已删除');
+}
+async function batchDeleteRecords(t) {
+  if (ui.selectedIds.size === 0) return;
+  if (!await confirmDialog({ title: '批量删除', message: `确定要删除选中的 <b>${ui.selectedIds.size}</b> 条记录吗？`, danger: true, okText: '确认删除' })) return;
+  
+  pushUndo(); 
+  t.records = t.records.filter(r => !ui.selectedIds.has(r.id));
+  ui.selectedIds.clear();
+  save(); renderView(); toast('已批量删除');
+}
+function flowRecord(t, rec, toTargetId){
+  const target = S.tables.find(x => x.id === toTargetId); if (!target) { toast('目标表不存在', 'error'); return; }
+  
+  pushUndo(); 
+  t.records = t.records.filter(r => r.id !== rec.id); target.records.push(Object.assign({}, rec, { id: uid(), updatedAt: Date.now() }));
+  ui.selectedIds.delete(rec.id);
+  save(); renderView(); toast(`已流转到「${target.name}」`);
+}
+
+/* ---------------- 表设置 & 分类管理 ---------------- */
+function openNewTable(){
+  const body = document.createElement('div'); body.className = 'form';
+  body.innerHTML = `<div class="form-row"><label>表名称 <span class="req">*</span></label><input class="input" id="newTableName" placeholder="例如：客户跟进"></div><div class="form-row"><label>初始字段</label><div class="field-list"><label class="check-item disabled"><input type="checkbox" checked disabled><span>名称 <em>（固定）</em></span></label>${PRESET_FIELDS.map((f, i) => `<label class="check-item"><input type="checkbox" value="${i}" checked><span>${esc(f.label)}</span></label>`).join('')}</div></div>`;
+  openModal({
+    title: '新建数据表', body, footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-ok>创建</button>`,
+    onMount(el, closeFn){
+      el.querySelector('[data-cancel]').onclick = closeFn;
+      el.querySelector('[data-ok]').onclick = () => {
+        const name = body.querySelector('#newTableName').value.trim(); if (!name) { toast('请输入表名称', 'error'); return; }
+        const fields = [{ id: 'f_' + uid(), label: '名称', type: 'text', required: true }];
+        body.querySelectorAll('.check-item:not(.disabled) input:checked').forEach(inp => { const p = PRESET_FIELDS[Number(inp.value)]; const f = { id: 'f_' + uid(), label: p.label, type: p.type }; if (p.options) f.options = [...p.options]; fields.push(f); });
+        
+        pushUndo();
+        const t = { id: 'tbl_' + uid(), name, system: false, fields, categories: defaultCategories(), records: [], customBg: '' }; S.tables.push(t); 
+        save();
+        closeFn(); switchTable(t.id); toast('已创建');
+      };
+    }
+  });
+}
+
+function openTableSettings(t){
+  if (!t) return;
+  const draft = t.fields.map(f => Object.assign({}, f, f.options ? { options: [...f.options] } : {}));
+  const originalIds = t.fields.map(f => f.id);
+  const body = document.createElement('div'); body.className = 'form';
+  body.innerHTML = `
+    <div class="form-row">
+      <label>表名称</label>
+      <input class="input" id="tblName" value="${esc(t.name)}">
+    </div>
+    <div class="form-row">
+      <label>独立背景壁纸（留空则使用全局壁纸）</label>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="btn" id="pickTblBg">选择图片…</button>
+        <span style="font-size:12px;color:var(--muted)">${t.customBg ? '已设置独立壁纸' : '当前使用全局壁纸'}</span>
+        <button class="btn btn-danger" id="clearTblBg" ${t.customBg ? '' : 'style="display:none"'}>清除</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>字段配置</label>
+      <div id="fieldEditor" class="field-editor"></div>
+      <button class="btn" id="addFieldBtn" style="align-self:flex-start">＋ 添加字段</button>
+    </div>
+    <div class="form-row">
+      <label style="color:var(--danger)">危险操作</label>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-danger" id="delTableBtn">删除此表</button>
+        <span style="font-size:12px;color:var(--muted)">${t.system ? '系统保护表，删除需要多次确认' : '删除后表内全部记录不可恢复'}</span>
+      </div>
+    </div>`;
+  openModal({
+    title: '表设置', body, width: '640px', footer: `<button class="btn" data-cancel>取消</button><button class="btn btn-primary" data-save>保存</button>`,
+    onMount(el, closeFn){
+      const editor = body.querySelector('#fieldEditor');
+      const renderEditor = () => { 
+        editor.innerHTML = draft.map((f, idx) => {
+          const isProtected = f.required || f.type === 'category';
+          const isTypeLocked = f.required || f.type === 'category';
+          
+          let tagsHtml = '';
+          if (f.required) tagsHtml = `<span class="field-name-tag" title="系统核心字段，无法删除">名称字段(核心)</span>`;
+          else if (f.type === 'category') tagsHtml = `<span class="field-name-tag" title="用于左侧分类栏，无法删除">分类字段(核心)</span>`;
+          else tagsHtml = `<button class="mini-btn" data-up ${idx === 0 ? 'disabled' : ''}>↑</button><button class="mini-btn" data-down ${idx === draft.length - 1 ? 'disabled' : ''}>↓</button><button class="mini-btn danger" data-del>×</button>`;
+
+          return `<div class="field-row" data-idx="${idx}">
+            <input class="input f-label" value="${esc(f.label)}" style="flex:1;min-width:96px" placeholder="字段名称">
+            <select class="input f-type" style="width:120px" ${isTypeLocked ? 'disabled title="该字段类型已被锁定"' : ''}>
+              ${FIELD_TYPES.map(ty => `<option value="${ty.value}" ${f.type === ty.value ? 'selected' : ''}>${ty.label}</option>`).join('')}
+            </select>
+            ${f.type === 'select' ? `<input class="input f-options" value="${esc((f.options || []).join('，'))}" placeholder="选项，逗号分隔" style="flex:1;min-width:110px">` : ''}
+            ${tagsHtml}
+          </div>`;
+        }).join(''); 
+      };
+      renderEditor();
+      editor.addEventListener('input', e => { const row = e.target.closest('.field-row'); if (!row) return; const f = draft[Number(row.dataset.idx)]; if (!f) return; if (e.target.classList.contains('f-label')) f.label = e.target.value; if (e.target.classList.contains('f-options')) f.options = e.target.value.split(/[，,]/).map(s => s.trim()).filter(Boolean); });
+      editor.addEventListener('change', e => { if (!e.target.classList.contains('f-type')) return; const row = e.target.closest('.field-row'); const f = draft[Number(row.dataset.idx)]; f.type = e.target.value; if (f.type === 'select' && (!f.options || !f.options.length)) f.options = ['选项1','选项2']; renderEditor(); });
+      editor.addEventListener('click', async e => {
+        const row = e.target.closest('.field-row'); if (!row) return; const idx = Number(row.dataset.idx); const f = draft[idx];
+        if (e.target.closest('[data-up]') && idx > 0) { [draft[idx - 1], draft[idx]] = [draft[idx], draft[idx - 1]]; renderEditor(); }
+        else if (e.target.closest('[data-down]') && idx < draft.length - 1) { [draft[idx + 1], draft[idx]] = [draft[idx], draft[idx + 1]]; renderEditor(); }
+        else if (e.target.closest('[data-del]')) { 
+          const used = t.records.some(r => r[f.id] !== undefined && r[f.id] !== ''); 
+          const ok = await confirmDialog({ title: '删除字段', message: `确定删除字段「<b>${esc(f.label)}</b>」吗？` + (used ? '<br>该字段下已有的数据将一并删除。' : ''), danger: true, okText: '删除' }); 
+          if (!ok) return; 
+          draft.splice(idx, 1); renderEditor(); 
+        }
+      });
+      
+      body.querySelector('#addFieldBtn').onclick = () => { draft.push({ id: 'f_' + uid(), label: '新字段', type: 'text' }); renderEditor(); };
+      
+      body.querySelector('#pickTblBg').onclick = () => {
+        const inp = document.getElementById('tblBgImageInput');
+        inp.value = '';
+        inp.onchange = async (ev) => {
+          const file = ev.target.files[0];
+          ev.target.value = '';
+          if (!file) return;
+          try {
+            const dataUrl = await compressImage(file, 600, 0.55);
+            t.customBg = dataUrl;
+            body.querySelector('#pickTblBg').nextElementSibling.textContent = '已设置独立壁纸';
+            body.querySelector('#clearTblBg').style.display = 'inline-block';
+            applyBg();
+            save();
+            toast('独立壁纸已设置');
+          } catch (err) { toast('图片处理失败', 'error'); }
+        };
+        inp.click();
+      };
+      
+      body.querySelector('#clearTblBg').onclick = () => {
+        t.customBg = '';
+        body.querySelector('#pickTblBg').nextElementSibling.textContent = '当前使用全局壁纸';
+        body.querySelector('#clearTblBg').style.display = 'none';
+        applyBg();
+        save();
+        toast('已恢复全局壁纸');
+      };
+
+      el.querySelector('[data-cancel]').onclick = closeFn;
+      el.querySelector('[data-save]').onclick = () => {
+        const name = body.querySelector('#tblName').value.trim(); if (!name) { toast('表名称不能为空', 'error'); return; } if (!draft.length) { toast('至少需要一个字段', 'error'); return; }
+        const clean = draft.map(f => { const out = { id: f.id, label: (f.label || '').trim() || '未命名字段', type: TYPE_MAP[f.type] ? f.type : 'text' }; if (out.type === 'select') out.options = (f.options && f.options.length) ? f.options.slice() : ['选项1','选项2']; if (f.required) out.required = true; return out; });
+        let req = clean.find(f => f.required); if (!req) { clean[0].required = true; req = clean[0]; } clean.forEach(f => { if (f !== req) delete f.required; }); req.type = 'text'; delete req.options;
+        const keepIds = new Set(clean.map(f => f.id)); originalIds.filter(id => !keepIds.has(id)).forEach(id => { t.records.forEach(r => { delete r[id]; }); });
+        
+        pushUndo();
+        t.name = name; t.fields = clean; 
+        save();
+        closeFn(); renderView(); toast('已保存');
+      };
+      body.querySelector('#delTableBtn').onclick = async () => { closeFn(); await deleteTable(t); };
+    }
+  });
+}
+async function deleteTable(t){
+  if (S.tables.length <= 1) { toast('至少需要保留一张表', 'error'); return; }
+  if (t.system) {
+    if (!await confirmDialog({ title: '删除系统保护表', message: `「<b>${esc(t.name)}</b>」是系统保护表，其中 <b>${t.records.length}</b> 条记录将被删除。`, danger: true, okText: '继续' })) return;
+    if (!await confirmDialog({ title: '再次确认', message: '此操作不可撤销，请确认你确实要删除这张系统保护表。', danger: true, okText: '我确认' })) return;
+    const ok = await confirmDialog({ title: '最后确认', message: `请输入表名「<b>${esc(t.name)}</b>」以完成删除。`, danger: true, okText: '永久删除', requireText: t.name }); if (!ok) return;
+  } else {
+    if (!await confirmDialog({ title: '删除表', message: `确定删除表「<b>${esc(t.name)}</b>」？其中 <b>${t.records.length}</b> 条记录将一并删除。`, danger: true, okText: '继续' })) return;
+    if (!await confirmDialog({ title: '二次确认', message: '删除后不可恢复，确定继续吗？', danger: true, okText: '删除' })) return;
+  }
+  
+  pushUndo();
+  S.tables = S.tables.filter(x => x.id !== t.id); 
+  save();
+  renderView(); toast('表已删除');
+}
+function openCategoryManager(){
+  const t = currentTable(); if (!t) return;
+  const body = document.createElement('div'); const listEl = document.createElement('div'); const addRow = document.createElement('div');
+  addRow.className = 'cat-add-row'; addRow.innerHTML = `<input class="input" id="newCatName" placeholder="输入新分类名称"><button class="btn btn-primary" id="addCatBtn">添加</button>`;
+  body.appendChild(listEl); body.appendChild(addRow);
+  const renderList = () => { listEl.innerHTML = t.categories.length ? t.categories.map(c => `<div class="cat-row" data-cid="${c.id}"><span class="cat-row-name">${esc(c.name)}</span><span class="cat-row-usage">${catUsage(t, c.id)} 条</span><button class="mini-btn" data-rename>改名</button><button class="mini-btn danger" data-del>删除</button></div>`).join('') : `<div style="color:var(--muted);font-size:13px;padding:8px 0">暂无分类</div>`; };
+  renderList();
+  openModal({
+    title: '分类管理', body, width: '520px', footer: `<button class="btn" data-cancel>关闭</button>`,
+    onMount(el, closeFn){
+      el.querySelector('[data-cancel]').onclick = closeFn;
+      addRow.querySelector('#addCatBtn').onclick = () => { 
+        const inp = addRow.querySelector('#newCatName'); const name = inp.value.trim(); 
+        if (!name) { toast('请输入分类名称', 'error'); return; } 
+        if (t.categories.some(c => c.name === name)) { toast('分类已存在', 'error'); return; } 
+        
+        pushUndo();
+        t.categories.push({ id: uid(), name }); inp.value = ''; 
+        save();
+        renderList(); renderView(); toast('已添加'); 
+      };
+      listEl.addEventListener('click', async e => {
+        const row = e.target.closest('.cat-row'); if (!row) return; const cid = row.dataset.cid; const cat = t.categories.find(c => c.id === cid); if (!cat) return;
+        if (e.target.closest('[data-del]')) { 
+          const n = catUsage(t, cid); 
+          const ok = await confirmDialog({ title: '删除分类', message: `确定删除分类「<b>${esc(cat.name)}</b>」？` + (n > 0 ? `<br>有 <b>${n}</b> 条记录的分类将被清空。` : ''), danger: true, okText: '删除' }); 
+          if (!ok) return; 
+          
+          pushUndo();
+          t.categories = t.categories.filter(x => x.id !== cid); 
+          const catField = categoryField(t);
+          if (catField) t.records.forEach(r => { if (r[catField.id] === cid) r[catField.id] = ''; }); 
+          save();
+          renderList(); renderView(); toast('已删除'); return; 
+        }
+        if (e.target.closest('[data-rename]')) { 
+          const nameEl = row.querySelector('.cat-row-name'); const old = cat.name; 
+          const input = document.createElement('input'); input.className = 'input'; input.value = old; input.style.width = '140px'; 
+          nameEl.replaceWith(input); input.focus(); input.select(); 
+          const commit = () => { 
+            const v = input.value.trim(); 
+            if (v && v !== old) { 
+              if (t.categories.some(c => c.name === v && c.id !== cid)) { toast('分类名已存在', 'error'); } 
+              else { pushUndo(); cat.name = v; save(); renderView(); } 
+            } 
+            renderList(); 
+          }; 
+          input.addEventListener('blur', commit); 
+          input.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); } if (ev.key === 'Escape') { input.value = old; input.blur(); } }); 
+        }
+      });
+    }
+  });
+}
+
+/* ---------------- 筛选浮层 ---------------- */
+let currentFilterPopover = null;
+
+function openFilterPopover(anchorEl) {
+  const t = currentTable();
+  if (!t) return;
+  
+  const popover = document.getElementById('filterPopover');
+  const fpList = document.getElementById('fpList');
+  const fpSearch = document.getElementById('fpSearch');
+  const fpCount = document.getElementById('fpCount');
+  
+  const rect = anchorEl.getBoundingClientRect();
+  popover.style.top = (rect.bottom + 8) + 'px';
+  popover.style.left = rect.left + 'px';
+  
+  popover.classList.add('show');
+  fpSearch.value = '';
+  
+  let appliedFilters = uiState.filters[t.id] || [];
+  
+  const renderList = (searchKw = '') => {
+    let html = '';
+    let selectedCount = 0;
+    
+    t.fields.forEach(f => {
+      if (f.type === 'image' || f.type === 'file') return; 
+      if (!f.label.includes(searchKw) && !f.id.includes(searchKw)) return;
+      
+      const activeFilter = appliedFilters.find(af => af.fieldId === f.id);
+      const isEnabled = !!activeFilter;
+      if (isEnabled) selectedCount++;
+      
+      html += `<div class="fp-item ${isEnabled ? 'expanded' : ''}" data-fid="${f.id}">
+        <div class="fp-field-row">
+          <input type="checkbox" class="fp-field-cb" ${isEnabled ? 'checked' : ''}>
+          <label>${esc(f.label)}</label>
+        </div>
+        <div class="fp-values">
+      `;
+      
+      if (f.type === 'select' || f.type === 'category') {
+        const vals = f.type === 'select' ? (f.options || []) : t.categories.map(c => ({ id: c.id, name: c.name }));
+        vals.forEach(v => {
+          const valId = f.type === 'select' ? v : v.id;
+          const valName = f.type === 'select' ? v : v.name;
+          const checked = activeFilter && activeFilter.values.includes(valId) ? 'checked' : '';
+          html += `<label class="fp-val-item"><input type="checkbox" class="fp-val-cb" data-val="${esc(valId)}" ${checked}> ${esc(valName)}</label>`;
+        });
+      } else if (f.type === 'date') {
+        const val = activeFilter && activeFilter.values[0] ? activeFilter.values[0] : '';
+        html += `<input type="date" class="fp-val-input fp-date-input" value="${esc(val)}" style="width:100%; padding:4px; border-radius:4px; border:1px solid var(--border); background:var(--panel-solid); color:var(--text);">`;
+      } else if (f.type === 'datetime-local') {
+        const val = activeFilter && activeFilter.values[0] ? activeFilter.values[0] : '';
+        html += `<input type="datetime-local" class="fp-val-input fp-date-input" value="${esc(val)}" style="width:100%; padding:4px; border-radius:4px; border:1px solid var(--border); background:var(--panel-solid); color:var(--text);">`;
+      } else {
+        const val = activeFilter && activeFilter.values[0] ? activeFilter.values[0] : '';
+        html += `<input type="text" class="fp-val-input" placeholder="包含该文字..." value="${esc(val)}">`;
+      }
+      
+      html += `</div></div>`;
+    });
+    
+    fpList.innerHTML = html;
+    fpCount.textContent = `已选 ${selectedCount} 项`;
+    
+    fpList.querySelectorAll('.fp-item').forEach(item => {
+      const fid = item.dataset.fid;
+      const field = t.fields.find(x => x.id === fid);
+      const cb = item.querySelector('.fp-field-cb');
+      
+      cb.onchange = () => {
+        if (cb.checked) {
+          item.classList.add('expanded');
+          if (!appliedFilters.find(af => af.fieldId === fid)) {
+            appliedFilters.push({ fieldId: fid, values: [] });
+            updateFilters();
+          }
+        } else {
+          item.classList.remove('expanded');
+          appliedFilters = appliedFilters.filter(af => af.fieldId !== fid);
+          updateFilters();
+        }
+        fpCount.textContent = `已选 ${appliedFilters.length} 项`;
+      };
+      
+      item.querySelectorAll('.fp-val-cb').forEach(vcb => {
+        vcb.onchange = () => {
+          let af = appliedFilters.find(af => af.fieldId === fid);
+          if (!af) { af = { fieldId: fid, values: [] }; appliedFilters.push(af); }
+          const val = vcb.dataset.val;
+          if (vcb.checked) { if (!af.values.includes(val)) af.values.push(val); } else { af.values = af.values.filter(v => v !== val); }
+          updateFilters();
+        };
+      });
+      
+      const inp = item.querySelector('.fp-val-input');
+      if (inp) {
+        const eventName = (field.type === 'date' || field.type === 'datetime-local') ? 'change' : 'input';
+        inp.addEventListener(eventName, () => {
+          let af = appliedFilters.find(af => af.fieldId === fid);
+          if (!af) { af = { fieldId: fid, values: [] }; appliedFilters.push(af); }
+          af.values = inp.value.trim() ? [inp.value.trim()] : [];
+          updateFilters();
+        });
+      }
+    });
+  };
+  
+  const updateFilters = () => {
+    const validFilters = appliedFilters.filter(af => af.values.length > 0);
+    uiState.filters[t.id] = validFilters;
+    saveUiState();
+    renderToolbar();
+    renderTable();
+    fpCount.textContent = `已选 ${appliedFilters.length} 项`;
+  };
+  
+  renderList();
+  fpSearch.oninput = () => renderList(fpSearch.value.trim());
+  
+  document.getElementById('fpSelectAll').onclick = () => {
+    t.fields.forEach(f => {
+      if (f.type === 'image' || f.type === 'file') return; 
+      if (fpSearch.value && !f.label.includes(fpSearch.value)) return;
+      if (!appliedFilters.find(af => af.fieldId === f.id)) appliedFilters.push({ fieldId: f.id, values: [] });
+    });
+    renderList(fpSearch.value.trim());
+    updateFilters();
+  };
+  
+  document.getElementById('fpClear').onclick = () => {
+    appliedFilters = [];
+    renderList(fpSearch.value.trim());
+    updateFilters();
+  };
+  
+  currentFilterPopover = (e) => {
+    if (!popover.contains(e.target) && e.target !== anchorEl) {
+      popover.classList.remove('show');
+      document.removeEventListener('click', currentFilterPopover);
+      currentFilterPopover = null;
+    }
+  };
+  setTimeout(() => document.addEventListener('click', currentFilterPopover), 10);
+}
+
+/* ---------------- Excel 导入导出 ---------------- */
+async function saveFileAs(content, filename, mimeType, fileTypes) {
+  return new Promise(async (resolve) => {
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({ suggestedName: filename, types: fileTypes });
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        toast('保存成功');
+        resolve(true);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') { resolve(false); return; }
+        console.warn('File System API 失败，尝试降级下载', err);
+      }
+    }
+    try {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 200);
+      toast('已下载到默认文件夹');
+      resolve(true);
+    } catch (e) { toast('下载失败', 'error'); resolve(false); }
+  });
+}
+
+function buildTableExcel(t, isTemplate = false) {
+  const wb = XLSX.utils.book_new();
+  const cols = t.fields;
+  const header = cols.map(f => f.label);
+  const catField = categoryField(t);
+  
+  if (isTemplate) {
+    const now = new Date();
+    const sample = cols.map(f => {
+      if (f.type === 'image' || f.type === 'file') return '';
+      if (f.type === 'category') return (t.categories[0] && t.categories[0].name) || '工作';
+      if (f.type === 'select') return (f.options && f.options[0]) || '';
+      if (f.type === 'number') return 1;
+      if (f.type === 'date') return now.toISOString().slice(0, 10);
+      if (f.type === 'datetime-local') return now.toISOString().slice(0, 16).replace('T', ' ');
+      return '示例' + f.label;
+    });
+    const ws = XLSX.utils.aoa_to_sheet([header, sample]);
+    XLSX.utils.book_append_sheet(wb, ws, catField ? "未分类" : "数据表");
+    return wb;
+  }
+
+  const records = filteredRecords(t);
+  const groupedData = {}; 
+  
+  records.forEach(r => {
+    let catId = catField ? (r[catField.id] || '') : '';
+    if (!groupedData[catId]) groupedData[catId] = [];
+    groupedData[catId].push(r);
+  });
+
+  if (catField) {
+    t.categories.forEach(c => { if (!groupedData[c.id]) groupedData[c.id] = []; });
+    if (!groupedData['']) groupedData[''] = [];
+  } else {
+    if (!groupedData['']) groupedData[''] = records;
+  }
+
+  for (const catId in groupedData) {
+    const sheetName = catId ? catName(t, catId) : (catField ? '未分类' : '数据表');
+    const recs = groupedData[catId];
+    const data = recs.map(r => cols.map(f => {
+      if (f.type === 'category') return catName(t, r[f.id]);
+      if (f.type === 'image' || f.type === 'file') return r[f.id] ? r[f.id].substring(0, 32000) : ''; 
+      return r[f.id] == null ? '' : r[f.id];
+    }));
+    
+    const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
+    let safeName = sheetName.replace(/[\\\/\?\*\[\]\:]/g, '_').slice(0, 31);
+    let finalName = safeName, idx = 1;
+    while (wb.SheetNames.includes(finalName)) { finalName = safeName.slice(0, 28) + '_' + idx; idx++; }
+    XLSX.utils.book_append_sheet(wb, ws, finalName);
+  }
+
+  return wb;
+}
+
+async function exportExcel(t) {
+  if (!t) return;
+  if (typeof XLSX === 'undefined') { toast('Excel 组件未加载', 'error'); return; }
+  const wb = buildTableExcel(t, false);
+  const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  await saveFileAs(buffer, `${t.name}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', [{ description: 'Excel 文件', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }]);
+}
+
+async function downloadExcelTemplate(t) {
+  if (!t) return;
+  if (typeof XLSX === 'undefined') { toast('Excel 组件未加载', 'error'); return; }
+  const wb = buildTableExcel(t, true);
+  const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  await saveFileAs(buffer, `${t.name}_导入模板.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', [{ description: 'Excel 模板', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }]);
+}
+
+async function processFiles(files, isRestore, fallbackTableId) {
+  if (!files || files.length === 0) return;
+  if (typeof XLSX === 'undefined') { toast('Excel 组件未加载', 'error'); return; }
+  
+  let processedCount = 0;
+  let errorFiles = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const fileName = file.name.replace(/\.xlsx$/i, '');
+    
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    
+    let t = S.tables.find(x => x.name === fileName);
+    if (!t && !isRestore) t = S.tables.find(x => x.id === fallbackTableId) || currentTable();
+    if (!t) { errorFiles.push(file.name); continue; }
+
+    if (isRestore) t.records = [];
+
+    let importCount = 0;
+    workbook.SheetNames.forEach(sheetName => {
+      if (sheetName === '数据表' || sheetName === '分类数据') return; 
+
+      let catId = '';
+      if (sheetName !== '未分类') {
+        let c = t.categories.find(x => x.name === sheetName);
+        if (!c) { c = { id: uid(), name: sheetName }; t.categories.push(c); }
+        catId = c.id;
+      }
+
+      const ws = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+      if (rows.length < 2) return;
+
+      const header = rows[0].map(h => String(h).trim());
+      const colMap = {};
+      header.forEach((h, idx) => { const f = t.fields.find(f => f.label === h || f.id === h); if (f) colMap[idx] = f; });
+
+      for (let j = 1; j < rows.length; j++) {
+        const row = rows[j]; const rec = {};
+        for (const [idx, f] of Object.entries(colMap)) {
+          let v = String(row[idx] == null ? '' : row[idx]).trim();
+          if (!v) continue;
+          if (f.type === 'category') continue;
+          if (f.type === 'select') { rec[f.id] = (f.options || []).includes(v) ? v : ''; continue; }
+          if (f.type === 'image' || f.type === 'file') { rec[f.id] = v; continue; }
+          
+          if ((f.type === 'date' || f.type === 'datetime-local') && v.includes('/')) {
+             const d = new Date(v);
+             if (!isNaN(d.getTime())) {
+               if (f.type === 'date') v = d.toISOString().slice(0, 10);
+               else v = d.toISOString().slice(0, 16);
+             }
+          }
+          rec[f.id] = v;
+        }
+        const req = t.fields.find(f => f.required); if (!req || !rec[req.id]) continue;
+        
+        const catField = categoryField(t);
+        if (catField) rec[catField.id] = catId;
+
+        rec.id = uid(); rec.createdAt = Date.now(); rec.updatedAt = Date.now();
+        t.records.push(rec);
+        importCount++;
+      }
+    });
+    processedCount++;
+  }
+
+  save();
+  renderView();
+  
+  if (errorFiles.length > 0) toast(`处理完成，但有 ${errorFiles.length} 个文件未匹配到对应表: ${errorFiles.join(', ')}`, 'error');
+  else toast(`成功处理 ${processedCount} 个文件`);
+}
+
+async function backupAll() {
+  if (typeof XLSX === 'undefined') { toast('Excel 组件未加载', 'error'); return; }
+  
+  if (window.showDirectoryPicker) {
+    try {
+      const dirHandle = await window.showDirectoryPicker({ id: 'backup', mode: 'readwrite' });
+      
+      // 1. 整理当前表名
+      const currentFileNames = new Set();
+      S.tables.forEach(t => {
+        currentFileNames.add(t.name.replace(/[\\\/\?\*\[\]\:]/g, '_') + '.xlsx');
+      });
+
+      // 2. 清理旧文件（改名或删除残留）
+      try {
+        for await (const entry of dirHandle.values()) {
+          if (entry.kind === 'file' && entry.name.endsWith('.xlsx')) {
+            if (!currentFileNames.has(entry.name)) {
+              await dirHandle.removeEntry(entry.name);
+            }
+          }
+        }
+      } catch (e) { console.warn('清理旧备份文件出错', e); }
+
+      // 3. 写入新文件
+      for (const t of S.tables) {
+        const wb = buildTableExcel(t, false);
+        const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const fileName = t.name.replace(/[\\\/\?\*\[\]\:]/g, '_') + '.xlsx';
+        
+        const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(buffer);
+        await writable.close();
+      }
+      toast('备份成功：已保存并清理旧文件');
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      console.warn('文件夹选择失败，降级为多文件下载', err);
+    }
+  }
+  
+  toast('正在逐个下载备份文件，请允许浏览器多文件下载...');
+  for (const t of S.tables) {
+    const wb = buildTableExcel(t, false);
+    const fileName = t.name.replace(/[\\\/\?\*\[\]\:]/g, '_') + '.xlsx';
+    XLSX.writeFile(wb, fileName);
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
+function compressImage(file, maxW, quality){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => { let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; } const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); try { resolve(canvas.toDataURL('image/jpeg', quality)); } catch (e) { reject(e); } };
+      img.onerror = () => reject(new Error('图片加载失败')); img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error('图片读取失败')); reader.readAsDataURL(file);
+  });
+}
+
+/* ===================================================================
+   事件绑定与初始化
+   =================================================================== */
+function bindEvents(){
+  var bind = function(id, ev, fn) {
+    var el = document.getElementById(id);
+    if (el) el[ev] = fn;
+  };
+
+  bind('restorePermBtn', 'onclick', restorePermissions);
+
+  bind('btnViewRepo', 'onclick', function(){ switchView('attachments'); });
+  bind('btnAddTable', 'onclick', function(){ openNewTable(); });
+  
+  bind('btnTableDropdown', 'onclick', function(e){
+    e.stopPropagation();
+    var popover = document.getElementById('tableSearchPopover');
+    if (popover.classList.contains('show')) {
+      popover.classList.remove('show');
+      if (currentTspOutsideClick) {
+        document.removeEventListener('click', currentTspOutsideClick);
+        currentTspOutsideClick = null;
+      }
+    } else {
+      openTableSearch(document.getElementById('tableSwitcher'));
+    }
+  });
+
+  bind('undoBtn', 'onclick', undo);
+  bind('redoBtn', 'onclick', redo);
+
+  bind('importExcelBtn', 'onclick', function(){ pendingImportTable = currentTable().id; var inp = document.getElementById('importExcelInput'); inp.value = ''; inp.click(); });
+  bind('exportExcelBtn', 'onclick', function(){ exportExcel(currentTable()); });
+  bind('tplExcelBtn', 'onclick', function(){ downloadExcelTemplate(currentTable()); });
+  bind('tblSettingsBtn', 'onclick', function(){ openTableSettings(currentTable()); });
+
+  var attImportInput = document.getElementById('attImportInput');
+  if (attImportInput) {
+    attImportInput.addEventListener('change', async function(e) {
+      var files = e.target.files;
+      e.target.value = '';
+      if (!files || files.length === 0) return;
+      if (!attachmentDirHandle) { toast('请先设置附件仓库', 'error'); return; }
+      
+      try {
+        var perm = await attachmentDirHandle.queryPermission({ mode: 'readwrite' });
+        if (perm !== 'granted') {
+          perm = await attachmentDirHandle.requestPermission({ mode: 'readwrite' });
+          if (perm !== 'granted') { toast('无文件写入权限', 'error'); return; }
+        }
+        
+        var successCount = 0;
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var fName = file.name;
+          var finalName = fName;
+          var idx = 1;
+          while (true) {
+            try {
+              await attachmentDirHandle.getFileHandle(finalName);
+              var extIdx = fName.lastIndexOf('.');
+              var base = extIdx > -1 ? fName.slice(0, extIdx) : fName;
+              var ext = extIdx > -1 ? fName.slice(extIdx) : '';
+              finalName = base + '_' + idx + ext;
+              idx++;
+            } catch (err) { break; }
+          }
+
+          var newHandle = await attachmentDirHandle.getFileHandle(finalName, { create: true });
+          var writable = await newHandle.createWritable();
+          await writable.write(file);
+          await writable.close();
+          successCount++;
+        }
+        
+        toast('成功导入 ' + successCount + ' 个文件');
+        loadAttachments();
+      } catch (err) {
+        console.error(err);
+        toast('导入文件失败', 'error');
+      }
+    });
+  }
+
+  var sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('click', function(e) { 
+      if (ui.currentView === 'attachments') {
+        var item = e.target.closest('[data-att-cat]');
+        if (item) {
+          ui.attCategory = item.dataset.attCat;
+          ui.attSelectedFiles.clear();
+          renderAttachmentsSidebar();
+          renderAttachmentsView();
+          return;
+        }
+        if (e.target.closest('[data-manage-att-cat]')) openManageAttCategories();
+      } else {
+        var item = e.target.closest('[data-cat]'); 
+        if (item) { 
+          var t = currentTable();
+          if (!uiState.categoryId) uiState.categoryId = {};
+          uiState.categoryId[t.id] = item.dataset.cat; 
+          saveUiState();
+          ui.page = 1; 
+          renderSidebar(); 
+          renderTable(); 
+          return; 
+        } 
+        if (e.target.closest('[data-managecat]')) openCategoryManager(); 
+      }
+    });
+  }
+  
+  var tb = document.getElementById('toolbar');
+  if (tb) {
+    tb.addEventListener('input', function(e) { 
+      if (e.target.id === 'searchInput') { 
+        var t = currentTable();
+        uiState.search[t.id] = e.target.value; 
+        saveUiState();
+        ui.page = 1; 
+        renderTable(); 
+      } 
+    });
+    tb.addEventListener('click', function(e) {
+      var t = currentTable();
+      var id = e.target.id;
+      if (id === 'resetFilter') { 
+        uiState.search[t.id] = ''; 
+        uiState.categoryId = uiState.categoryId || {};
+        uiState.categoryId[t.id] = ''; 
+        uiState.filters[t.id] = [];
+        saveUiState();
+        ui.page = 1; 
+        renderSidebar();
+        renderToolbar(); 
+        renderTable(); 
+      }
+      else if (id === 'addFilterBtn') { openFilterPopover(e.target); }
+      else if (id === 'undoBtn') { undo(); }
+      else if (id === 'redoBtn') { redo(); }
+      else if (id === 'addRecord') { openRecordForm(t); }
+      else if (id === 'batchDelBtn') { batchDeleteRecords(t); }
+      
+      var delFilterBtn = e.target.closest('[data-del-filter]');
+      if (delFilterBtn) {
+        var idx = Number(delFilterBtn.dataset.delFilter);
+        uiState.filters[t.id].splice(idx, 1);
+        saveUiState();
+        renderToolbar();
+        renderTable();
+      }
+    });
+  }
+
+  var tableWrap = document.getElementById('tableWrap');
+  if (tableWrap) {
+    tableWrap.addEventListener('click', async function(e) {
+      if (e.target.id === 'selectAllCb') {
+        var allFiltered = filteredRecords(currentTable());
+        var start = (ui.page - 1) * ui.pageSize;
+        var recs = allFiltered.slice(start, start + ui.pageSize);
+        if (e.target.checked) recs.forEach(function(r){ ui.selectedIds.add(r.id); });
+        else recs.forEach(function(r){ ui.selectedIds.delete(r.id); });
+        renderTable(); renderToolbar();
+        return;
+      }
+      if (e.target.classList.contains('row-cb')) {
+        var id = e.target.dataset.id;
+        if (e.target.checked) ui.selectedIds.add(id);
+        else ui.selectedIds.delete(id);
+        e.target.closest('tr').classList.toggle('selected', e.target.checked);
+        renderToolbar();
+        return;
+      }
+
+      var thumb = e.target.closest('.thumb');
+      if (thumb) { openModal({ title: '查看图片', width: '640px', body: '<div style="text-align:center"><img src="'+thumb.src+'" style="max-width:100%;max-height:70vh;border-radius:8px"></div>', footer: '<button class="btn" data-cancel>关闭</button>', onMount: function(el, closeFn) { el.querySelector('[data-cancel]').onclick = closeFn; } }); return; }
+      if (e.target.closest('[data-empty-add]')) { openRecordForm(currentTable()); return; }
+      
+      var fileLink = e.target.closest('.file-link');
+      if (fileLink) {
+        previewAttachment(fileLink.dataset.file);
+        return;
+      }
+
+      var btn = e.target.closest('button[data-act]'); if (!btn) return;
+      var t = currentTable(); if (!t) return; var rec = t.records.find(function(r){ return r.id === btn.dataset.id; }); if (!rec) return;
+      if (btn.dataset.act === 'edit') openRecordForm(t, rec);
+      else if (btn.dataset.act === 'del') await deleteRecord(t, rec);
+      else if (btn.dataset.act === 'flow') flowRecord(t, rec, btn.dataset.to);
+    });
+  }
+
+  bind('settingsBtn', 'onclick', openSettings);
+  bind('manualBackupBtn', 'onclick', backupAll);
+  bind('manualRestoreBtn', 'onclick', function(){ var inp = document.getElementById('restoreInput'); inp.value = ''; inp.click(); });
+  
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(document.activeElement.tagName) === -1) {
+      if (e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+      else if (e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+    }
+  });
+
+  var restoreInput = document.getElementById('restoreInput');
+  if (restoreInput) {
+    restoreInput.addEventListener('change', async function(e) {
+      var files = e.target.files;
+      e.target.value = '';
+      if (!files || files.length === 0) return;
+      var ok = await confirmDialog({ title: '恢复数据', message: '恢复将<b>覆盖</b>对应表的数据，确定继续吗？', danger: true, okText: '覆盖恢复' }); 
+      if (!ok) return;
+      pushUndo();
+      await processFiles(files, true);
+    });
+  }
+  
+  var importExcelInput = document.getElementById('importExcelInput');
+  if (importExcelInput) {
+    importExcelInput.addEventListener('change', async function(e) {
+      var files = e.target.files;
+      e.target.value = '';
+      if (!files || files.length === 0) return;
+      pushUndo();
+      await processFiles(files, false, pendingImportTable);
+      pendingImportTable = null;
+    });
+  }
+
+  var bgImageInput = document.getElementById('bgImageInput');
+  if (bgImageInput) {
+    bgImageInput.addEventListener('change', async function(e) { 
+      var f = e.target.files[0]; e.target.value = ''; if (!f) return; 
+      try { 
+        var dataUrl = await compressImage(f, 600, 0.55); 
+        S.settings.bgImage = dataUrl; S.settings.bgType = 'local'; 
+        save(); applyBg(); toast('背景已更新'); 
+        var span = document.querySelector('#localRow span'); if(span) span.textContent = '已设置本地图片';
+      } catch (err) { toast('图片处理失败', 'error'); } 
+    });
+  }
+}
+
+function init(){
+  // 1. 先给 S 赋一个绝对存在的默认对象，保证界面能渲染出来，绝对不会白屏
+  S = defaultState();
+  
+  // 2. 同步渲染基础界面
+  try {
+    loadUiState();
+    ui.tableId = S.tables[0] ? S.tables[0].id : null;
+    applyTheme(); applyBg(); renderView(); bindEvents();
+  } catch (e) {
+    console.error('初始化界面出错', e);
+  }
+
+  // 3. 后台去读取真实数据库，读到了再覆盖并重新渲染
+  loadState().then(function(realS) {
+    if (realS && realS.tables && realS.tables.length > 0) {
+      S = realS;
+      var lastId = localStorage.getItem('dfy_last_table');
+      if (lastId && S.tables.find(function(t){ return t.id === lastId; })) {
+        ui.tableId = lastId;
+      } else {
+        ui.tableId = S.tables[0].id;
+      }
+      applyTheme(); applyBg(); renderView();
+    }
+  }).catch(function(e) {
+    console.warn('读取历史数据失败，继续使用默认数据', e);
+  }).finally(function() {
+    // 4. 最后检查权限
+    try { checkPermissionStatus(); } catch(e) {}
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
